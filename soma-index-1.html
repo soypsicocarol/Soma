@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soma — Tu espacio seguro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Tokens ── */
+    :root {
+      --soma-green:   #3ecf7a;
+      --soma-yellow:  #ffd166;
+      --soma-coral:   #ff7f6b;
+      --soma-purple:  #b57bee;
+      --soma-blue:    #5bc4fa;
+      --soma-dark:    #1a1a2e;
+      --soma-ink:     #2d2d44;
+      --soma-muted:   #7a7a96;
+      --soma-surface: #f4f2ff;
+      --soma-white:   #ffffff;
+      --r:            16px;
+      --r-lg:         24px;
+      --font-display: 'Fraunces', serif;
+      --font-body:    'Plus Jakarta Sans', sans-serif;
+      --trans:        .25s cubic-bezier(.4,0,.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--soma-surface);
+      color: var(--soma-ink);
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background blobs ── */
+    .bg-blobs {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      overflow: hidden;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: .18;
+      animation: drift 14s ease-in-out infinite alternate;
+    }
+    .blob-1 { width: 500px; height: 500px; background: var(--soma-green);  top: -120px; left: -100px; animation-delay: 0s; }
+    .blob-2 { width: 400px; height: 400px; background: var(--soma-yellow); top: 40%;   right: -80px;  animation-delay: -4s; }
+    .blob-3 { width: 350px; height: 350px; background: var(--soma-purple); bottom: -80px; left: 30%; animation-delay: -8s; }
+    .blob-4 { width: 300px; height: 300px; background: var(--soma-coral);  top: 20%;   left: 40%;  animation-delay: -2s; }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    /* ── Layout ── */
+    .wrapper {
+      position: relative; z-index: 1;
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 1fr 480px;
+    }
+
+    @media (max-width: 900px) {
+      .wrapper { grid-template-columns: 1fr; }
+      .landing-side { display: none; }
+      .auth-side { padding: 2rem 1.5rem; }
+    }
+
+    /* ── Landing side ── */
+    .landing-side {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3rem;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--soma-ink);
+      letter-spacing: -.5px;
+    }
+    .logo span { color: var(--soma-green); }
+
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.5rem;
+      max-width: 520px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(62,207,122,.15);
+      border: 1px solid rgba(62,207,122,.3);
+      color: #1a9952;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 100px;
+      width: fit-content;
+    }
+    .hero-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--soma-green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.6rem, 5vw, 3.8rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--soma-ink);
+    }
+    .hero h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--soma-green);
+    }
+
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--soma-muted);
+      line-height: 1.7;
+      max-width: 420px;
+    }
+
+    .nidos-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .nido-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1.5px solid transparent;
+      cursor: default;
+      transition: transform var(--trans);
+    }
+    .nido-chip:hover { transform: translateY(-2px); }
+    .nido-chip.green  { background: rgba(62,207,122,.12);  border-color: rgba(62,207,122,.3);  color: #1a9952; }
+    .nido-chip.yellow { background: rgba(255,209,102,.15); border-color: rgba(255,209,102,.4);  color: #a07800; }
+    .nido-chip.coral  { background: rgba(255,127,107,.12); border-color: rgba(255,127,107,.3);  color: #c44a35; }
+    .nido-chip.purple { background: rgba(181,123,238,.12); border-color: rgba(181,123,238,.3);  color: #7840b8; }
+    .nido-chip.blue   { background: rgba(91,196,250,.12);  border-color: rgba(91,196,250,.3);   color: #0882b8; }
+
+    .landing-footer {
+      font-size: 12px;
+      color: var(--soma-muted);
+    }
+    .landing-footer strong { color: var(--soma-ink); }
+
+    /* ── Auth side ── */
+    .auth-side {
+      background: var(--soma-white);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3rem 3.5rem;
+      box-shadow: -2px 0 40px rgba(0,0,0,.06);
+    }
+
+    .auth-logo-mobile {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--soma-ink);
+      margin-bottom: 2rem;
+      display: none;
+    }
+    .auth-logo-mobile span { color: var(--soma-green); }
+    @media (max-width: 900px) { .auth-logo-mobile { display: block; } }
+
+    /* Tabs: Entrar / Registrarse */
+    .auth-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--soma-surface);
+      border-radius: var(--r);
+      padding: 4px;
+      margin-bottom: 2rem;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 12px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: var(--soma-muted);
+      transition: all var(--trans);
+    }
+    .tab-btn.active {
+      background: var(--soma-white);
+      color: var(--soma-ink);
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    /* Form panels */
+    .auth-panel { display: none; flex-direction: column; gap: 1.25rem; }
+    .auth-panel.active { display: flex; }
+
+    .auth-panel h2 {
+      font-family: var(--font-display);
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--soma-ink);
+      margin-bottom: -.25rem;
+    }
+    .auth-panel .subtitle {
+      font-size: 14px;
+      color: var(--soma-muted);
+      line-height: 1.5;
+      margin-bottom: .25rem;
+    }
+
+    /* Inputs */
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-group label { font-size: 13px; font-weight: 600; color: var(--soma-ink); }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #e5e3f0;
+      border-radius: var(--r);
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--soma-ink);
+      background: var(--soma-surface);
+      transition: border-color var(--trans), box-shadow var(--trans);
+      outline: none;
+      appearance: none;
+    }
+    .input-group input:focus,
+    .input-group select:focus {
+      border-color: var(--soma-green);
+      box-shadow: 0 0 0 3px rgba(62,207,122,.15);
+      background: #fff;
+    }
+    .input-group input::placeholder { color: #bbb; }
+
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Selector de rol en registro */
+    .rol-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .rol-card {
+      position: relative;
+      border: 1.5px solid #e5e3f0;
+      border-radius: var(--r);
+      padding: 14px 12px;
+      cursor: pointer;
+      transition: all var(--trans);
+      background: var(--soma-surface);
+    }
+    .rol-card:hover { border-color: #bdb8dc; }
+    .rol-card input[type="radio"] { position: absolute; opacity: 0; }
+    .rol-card.selected {
+      border-color: var(--soma-green);
+      background: rgba(62,207,122,.07);
+      box-shadow: 0 0 0 3px rgba(62,207,122,.12);
+    }
+    .rol-card .rol-icon { font-size: 1.5rem; margin-bottom: 6px; display: block; }
+    .rol-card .rol-name { font-size: 13px; font-weight: 700; color: var(--soma-ink); display: block; }
+    .rol-card .rol-desc { font-size: 11px; color: var(--soma-muted); margin-top: 2px; display: block; line-height: 1.4; }
+
+    /* Admin code field (solo visible si rol = psicólogo) */
+    .admin-code-row { display: none; }
+    .admin-code-row.visible { display: flex; flex-direction: column; gap: 6px; }
+
+    /* Aviso pendiente */
+    .notice {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      background: rgba(255,209,102,.15);
+      border: 1px solid rgba(255,209,102,.5);
+      border-radius: var(--r);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #7a5800;
+      line-height: 1.5;
+    }
+    .notice .icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* Botón principal */
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: var(--r);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--soma-ink);
+      color: #fff;
+      transition: transform var(--trans), background var(--trans), box-shadow var(--trans);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .btn-primary:hover { background: #2a2a44; box-shadow: 0 6px 20px rgba(0,0,0,.2); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary.loading { pointer-events: none; opacity: .7; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--soma-muted);
+      font-size: 12px;
+    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e5e3f0; }
+
+    /* ── Toast ── */
+    .toast-area { position: fixed; bottom: 2rem; right: 2rem; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
+    .toast {
+      padding: 14px 20px;
+      border-radius: var(--r);
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(0,0,0,.15);
+      animation: slideIn .3s ease;
+      max-width: 320px;
+    }
+    .toast.success { background: var(--soma-green); color: var(--soma-ink); }
+    .toast.error   { background: var(--soma-coral); }
+    .toast.info    { background: var(--soma-purple); }
+    @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    /* ── Estado de carga ── */
+    .splash {
+      position: fixed; inset: 0; z-index: 100;
+      background: var(--soma-surface);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem;
+      transition: opacity .5s ease;
+    }
+    .splash.hidden { opacity: 0; pointer-events: none; }
+    .splash-logo {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--soma-ink);
+      animation: breathe 2s ease-in-out infinite;
+    }
+    .splash-logo span { color: var(--soma-green); }
+    @keyframes breathe { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+    .splash p { font-size: 14px; color: var(--soma-muted); }
+
+    /* ── Dashboard placeholder ── */
+    .dashboard { display: none; }
+
+    /* Pending screen */
+    .pending-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 1rem;
+      padding: 2rem;
+    }
+    .pending-icon { font-size: 3.5rem; }
+    .pending-screen h2 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: var(--soma-ink);
+    }
+    .pending-screen p { font-size: 14px; color: var(--soma-muted); max-width: 280px; line-height: 1.6; }
+    .btn-outline {
+      padding: 10px 24px;
+      border: 2px solid var(--soma-ink);
+      border-radius: 100px;
+      background: none;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all var(--trans);
+    }
+    .btn-outline:hover { background: var(--soma-ink); color: #fff; }
+  </style>
+</head>
+<body>
+
+<!-- Splash de carga -->
+<div class="splash" id="splash">
+  <div class="splash-logo">So<span>ma</span></div>
+  <p>Cargando tu espacio seguro…</p>
+</div>
+
+<!-- Blobs de fondo -->
+<div class="bg-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+</div>
+
+<!-- Área de toasts -->
+<div class="toast-area" id="toastArea"></div>
+
+<!-- ═══ WRAPPER PRINCIPAL ═══ -->
+<div class="wrapper" id="mainWrapper">
+
+  <!-- ── Lado izquierdo: Landing ── -->
+  <section class="landing-side">
+    <div class="logo">So<span>ma</span></div>
+
+    <div class="hero">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Espacio seguro y supervisado
+      </div>
+
+      <h1>
+        Bienvenido a<br>
+        <em>Soma</em>
+      </h1>
+
+      <p>
+        Un lugar para crecer, expresarte y conectar con otros.<br>
+        Aquí cada persona tiene su espacio, su ritmo y su Nido.
+      </p>
+
+      <div>
+        <p style="font-size:13px; font-weight:600; color:var(--soma-muted); margin-bottom:10px; letter-spacing:.5px; text-transform:uppercase;">
+          Nidos activos
+        </p>
+        <div class="nidos-preview">
+          <span class="nido-chip green">🌿 Raíces 8–10</span>
+          <span class="nido-chip yellow">☀️ Luz 10–12</span>
+          <span class="nido-chip coral">🔥 Chispa TEA</span>
+          <span class="nido-chip purple">💜 Calma TDAH</span>
+          <span class="nido-chip blue">🌊 Marea 14–16</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="landing-footer">
+      <strong>Soma</strong> — Todos los espacios son supervisados por tu psicóloga.
+      Tu seguridad es lo primero.
+    </div>
+  </section>
+
+  <!-- ── Lado derecho: Auth ── -->
+  <section class="auth-side" id="authSide">
+    <div class="auth-logo-mobile">So<span>ma</span></div>
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">Entrar</button>
+      <button class="tab-btn" onclick="switchTab('register')">Registrarse</button>
+    </div>
+
+    <!-- Panel: Login -->
+    <div class="auth-panel active" id="panel-login">
+      <div>
+        <h2>Hola de nuevo 👋</h2>
+        <p class="subtitle">Ingresa con tu correo y contraseña.</p>
+      </div>
+
+      <div class="input-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="login-email" placeholder="tu@correo.com" />
+      </div>
+
+      <div class="input-group">
+        <label>Contraseña</label>
+        <input type="password" id="login-password" placeholder="••••••••" />
+      </div>
+
+      <button class="btn-primary" id="btnLogin" onclick="handleLogin()">
+        Entrar a Soma
+      </button>
+
+      <div class="divider">¿Primera vez aquí?</div>
+
+      <button class="btn-primary" style="background:var(--soma-surface);color:var(--soma-ink);border:1.5px solid #e5e3f0;box-shadow:none;" onclick="switchTab('register')">
+        Crear mi cuenta
+      </button>
+    </div>
+
+    <!-- Panel: Registro -->
+    <div class="auth-panel" id="panel-register">
+      <div>
+        <h2>Únete a Soma ✨</h2>
+        <p class="subtitle">Crea tu cuenta. Tu psicóloga activará tu acceso a los Nidos.</p>
+      </div>
+
+      <!-- Selector de rol -->
+      <div>
+        <label style="font-size:13px;font-weight:600;color:var(--soma-ink);display:block;margin-bottom:8px;">
+          ¿Quién eres?
+        </label>
+        <div class="rol-selector" id="rolSelector">
+          <label class="rol-card selected" id="card-paciente" onclick="selectRol('paciente')">
+            <input type="radio" name="rol" value="paciente" checked />
+            <span class="rol-icon">🌱</span>
+            <span class="rol-name">Miembro</span>
+            <span class="rol-desc">Paciente / participante de Soma</span>
+          </label>
+          <label class="rol-card" id="card-admin" onclick="selectRol('admin')">
+            <input type="radio" name="rol" value="admin" />
+            <span class="rol-icon">🧠</span>
+            <span class="rol-name">Psicóloga</span>
+            <span class="rol-desc">Administradora del espacio</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="input-row">
+        <div class="input-group">
+          <label>Nombre</label>
+          <input type="text" id="reg-nombre" placeholder="Tu nombre" />
+        </div>
+        <div class="input-group">
+          <label>Apellido</label>
+          <input type="text" id="reg-apellido" placeholder="Tu apellido" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Fecha de nacimiento</label>
+        <input type="date" id="reg-fecha" />
+      </div>
+
+      <div class="input-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="reg-email" placeholder="tu@correo.com" />
+      </div>
+
+      <div class="input-group">
+        <label>Contraseña</label>
+        <input type="password" id="reg-password" placeholder="Mínimo 8 caracteres" />
+      </div>
+
+      <!-- Código admin (oculto por defecto) -->
+      <div class="input-group admin-code-row" id="adminCodeRow">
+        <label>Código de administración</label>
+        <input type="password" id="reg-admin-code" placeholder="Código proporcionado por Soma" />
+      </div>
+
+      <!-- Aviso solo para pacientes -->
+      <div class="notice" id="noticePatient">
+        <span class="icon">⏳</span>
+        <span>Tu cuenta quedará en revisión hasta que tu psicóloga apruebe tu acceso y te asigne a un Nido.</span>
+      </div>
+
+      <button class="btn-primary" onclick="handleRegister()">
+        Crear mi cuenta en Soma
+      </button>
+    </div>
+
+    <!-- Pantalla: cuenta pendiente -->
+    <div class="pending-screen" id="pendingScreen">
+      <div class="pending-icon">🌱</div>
+      <h2>¡Ya casi estás dentro!</h2>
+      <p>Tu cuenta fue creada. Tu psicóloga revisará tu solicitud y te asignará a tu Nido pronto.</p>
+      <button class="btn-outline" onclick="handleLogout()">Cerrar sesión</button>
+    </div>
+
+  </section>
+</div>
+
+
+<!-- ══════════════════════════════════
+     Firebase + Lógica
+═══════════════════════════════════ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import {
+    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    onAuthStateChanged, signOut
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import {
+    getFirestore, doc, setDoc, getDoc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  /* ─── CONFIGURACIÓN FIREBASE ─── */
+  /* ⚠️  Reemplaza estos valores con los de tu proyecto en Firebase Console */
+  const firebaseConfig = {
+    apiKey:            "TU_API_KEY",
+    authDomain:        "TU_PROYECTO.firebaseapp.com",
+    projectId:         "TU_PROYECTO_ID",
+    storageBucket:     "TU_PROYECTO.appspot.com",
+    messagingSenderId: "TU_SENDER_ID",
+    appId:             "TU_APP_ID"
+  };
+
+  /* Código secreto para crear cuentas de admin
+     En producción esto va en Cloud Functions, nunca en el cliente */
+  const ADMIN_SECRET = "SOMA_ADMIN_2024";
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  /* ─── Exponer funciones al scope global ─── */
+  window._auth = auth;
+  window._db   = db;
+
+  /* ─── Observer de sesión ─── */
+  onAuthStateChanged(auth, async (user) => {
+    hideSplash();
+    if (!user) {
+      showView('auth');
+      return;
+    }
+
+    const snap = await getDoc(doc(db, "usuarios", user.uid));
+    if (!snap.exists()) { showView('auth'); return; }
+
+    const data = snap.data();
+
+    if (data.rol === 'admin') {
+      // Redirigir al panel de administración
+      window.location.href = 'admin.html';
+      return;
+    }
+
+    if (data.estado === 'pendiente') {
+      showView('pending');
+      return;
+    }
+
+    if (data.estado === 'activo') {
+      // Redirigir al dashboard del miembro
+      window.location.href = 'dashboard.html';
+      return;
+    }
+
+    if (data.estado === 'bloqueado') {
+      toast('Tu cuenta ha sido suspendida. Contacta a tu psicóloga.', 'error');
+      await signOut(auth);
+    }
+  });
+
+  /* ─── Login ─── */
+  window.handleLogin = async () => {
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!email || !password) { toast('Completa todos los campos', 'error'); return; }
+
+    const btn = document.getElementById('btnLogin');
+    btn.textContent = 'Entrando…';
+    btn.classList.add('loading');
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChanged maneja la redirección
+    } catch (e) {
+      toast(friendlyError(e.code), 'error');
+      btn.textContent = 'Entrar a Soma';
+      btn.classList.remove('loading');
+    }
+  };
+
+  /* ─── Registro ─── */
+  window.handleRegister = async () => {
+    const nombre   = document.getElementById('reg-nombre').value.trim();
+    const apellido = document.getElementById('reg-apellido').value.trim();
+    const fecha    = document.getElementById('reg-fecha').value;
+    const email    = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const rol      = document.querySelector('input[name="rol"]:checked')?.value || 'paciente';
+
+    if (!nombre || !apellido || !email || !password || !fecha) {
+      toast('Completa todos los campos', 'error'); return;
+    }
+    if (password.length < 8) {
+      toast('La contraseña debe tener al menos 8 caracteres', 'error'); return;
+    }
+
+    // Validación código admin
+    if (rol === 'admin') {
+      const code = document.getElementById('reg-admin-code').value;
+      if (code !== ADMIN_SECRET) {
+        toast('Código de administración incorrecto', 'error'); return;
+      }
+    }
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const uid  = cred.user.uid;
+
+      const edad = calcEdad(fecha);
+
+      await setDoc(doc(db, "usuarios", uid), {
+        uid,
+        nombre,
+        apellido,
+        nombreCompleto: `${nombre} ${apellido}`,
+        email,
+        fechaNacimiento: fecha,
+        edad,
+        rol,
+        estado: rol === 'admin' ? 'activo' : 'pendiente',
+        nidos: [],
+        creadoEn: serverTimestamp(),
+        actualizadoEn: serverTimestamp()
+      });
+
+      toast('¡Cuenta creada con éxito!', 'success');
+      // onAuthStateChanged redirige automáticamente
+
+    } catch (e) {
+      toast(friendlyError(e.code), 'error');
+    }
+  };
+
+  window.handleLogout = async () => {
+    await signOut(auth);
+  };
+
+  /* ─── Helpers ─── */
+  function calcEdad(fechaStr) {
+    const hoy  = new Date();
+    const nac  = new Date(fechaStr);
+    let edad   = hoy.getFullYear() - nac.getFullYear();
+    const m    = hoy.getMonth() - nac.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+    return edad;
+  }
+
+  function friendlyError(code) {
+    const map = {
+      'auth/user-not-found':    'No encontramos una cuenta con ese correo.',
+      'auth/wrong-password':    'La contraseña es incorrecta.',
+      'auth/email-already-in-use': 'Ya existe una cuenta con ese correo.',
+      'auth/weak-password':     'La contraseña es muy débil.',
+      'auth/invalid-email':     'El correo no es válido.',
+      'auth/invalid-credential': 'Correo o contraseña incorrectos.',
+      'auth/too-many-requests': 'Demasiados intentos. Espera un momento.',
+    };
+    return map[code] || 'Ocurrió un error. Intenta de nuevo.';
+  }
+</script>
+
+<script>
+  /* ── UI helpers (sync) ── */
+  function hideSplash() {
+    const s = document.getElementById('splash');
+    s.classList.add('hidden');
+    setTimeout(() => s.remove(), 600);
+  }
+
+  function showView(view) {
+    const auth    = document.getElementById('authSide');
+    const pending = document.getElementById('pendingScreen');
+    const tabs    = auth.querySelector('.auth-tabs');
+    const panels  = auth.querySelectorAll('.auth-panel');
+    const notice  = document.getElementById('noticePatient');
+
+    // Ocultar todo primero
+    pending.style.display = 'none';
+    tabs.style.display    = 'flex';
+    panels.forEach(p => { p.style.display = 'none'; p.classList.remove('active'); });
+
+    if (view === 'auth') {
+      const active = document.getElementById('panel-login');
+      active.style.display = 'flex';
+      active.classList.add('active');
+    }
+
+    if (view === 'pending') {
+      tabs.style.display = 'none';
+      pending.style.display = 'flex';
+    }
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) => {
+      b.classList.toggle('active', (tab==='login'&&i===0)||(tab==='register'&&i===1));
+    });
+    document.querySelectorAll('.auth-panel').forEach(p => {
+      p.style.display = 'none';
+      p.classList.remove('active');
+    });
+    const panel = document.getElementById(`panel-${tab}`);
+    panel.style.display = 'flex';
+    panel.classList.add('active');
+  }
+  window.switchTab = switchTab;
+
+  function selectRol(rol) {
+    document.querySelectorAll('.rol-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById(`card-${rol}`).classList.add('selected');
+
+    const adminRow = document.getElementById('adminCodeRow');
+    const notice   = document.getElementById('noticePatient');
+    if (rol === 'admin') {
+      adminRow.classList.add('visible');
+      notice.style.display = 'none';
+    } else {
+      adminRow.classList.remove('visible');
+      notice.style.display = 'flex';
+    }
+  }
+  window.selectRol = selectRol;
+
+  function toast(msg, type = 'info') {
+    const area = document.getElementById('toastArea');
+    const el   = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    area.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+  window.toast = toast;
+</script>
+</body>
+</html>
