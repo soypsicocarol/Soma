@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soma — Tu espacio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ══ TOKENS (mismos que index) ══ */
+    :root {
+      --soma-green:   #3ecf7a;
+      --soma-yellow:  #ffd166;
+      --soma-coral:   #ff7f6b;
+      --soma-purple:  #b57bee;
+      --soma-blue:    #5bc4fa;
+      --soma-dark:    #1a1a2e;
+      --soma-ink:     #2d2d44;
+      --soma-muted:   #7a7a96;
+      --soma-surface: #f4f2ff;
+      --soma-white:   #ffffff;
+      --r:            16px;
+      --r-lg:         24px;
+      --font-display: 'Fraunces', serif;
+      --font-body:    'Plus Jakarta Sans', sans-serif;
+      --trans:        .25s cubic-bezier(.4,0,.2,1);
+
+      /* sidebar */
+      --sidebar-w: 260px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--soma-surface);
+      color: var(--soma-ink);
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* ══ BLOBS DE FONDO ══ */
+    .bg-blobs {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    }
+    .blob {
+      position: absolute; border-radius: 50%;
+      filter: blur(90px); opacity: .12;
+      animation: drift 16s ease-in-out infinite alternate;
+    }
+    .blob-1 { width: 500px; height: 500px; background: var(--soma-green);  top: -100px; left: -80px;  animation-delay: 0s; }
+    .blob-2 { width: 380px; height: 380px; background: var(--soma-yellow); top: 45%;   right: -60px;  animation-delay: -5s; }
+    .blob-3 { width: 320px; height: 320px; background: var(--soma-purple); bottom: -60px; left: 35%; animation-delay: -10s; }
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(25px,18px) scale(1.07); }
+    }
+
+    /* ══ LAYOUT PRINCIPAL ══ */
+    .app {
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 100dvh;
+    }
+
+    /* ══ TOPBAR ══ */
+    .topbar {
+      grid-column: 1 / -1;
+      height: 64px;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--soma-ink);
+      letter-spacing: -.5px;
+      text-decoration: none;
+    }
+    .logo span { color: var(--soma-green); }
+
+    .topbar-divider {
+      width: 1px; height: 24px;
+      background: #e5e3f0;
+    }
+
+    .topbar-nido {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(62,207,122,.1);
+      border: 1px solid rgba(62,207,122,.25);
+      padding: 5px 12px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a9952;
+    }
+    .topbar-nido .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%; background: var(--soma-green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .notif-btn {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--soma-surface);
+      border: 1.5px solid #e5e3f0;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      position: relative;
+      transition: all var(--trans);
+    }
+    .notif-btn:hover { background: #ebe9f8; }
+    .notif-badge {
+      position: absolute; top: -2px; right: -2px;
+      width: 16px; height: 16px;
+      background: var(--soma-coral);
+      border-radius: 50%;
+      border: 2px solid var(--soma-white);
+      font-size: 9px;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+    }
+
+    .avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--soma-purple), var(--soma-blue));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff;
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,.8);
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    }
+
+    /* ══ SIDEBAR ══ */
+    .sidebar {
+      background: rgba(255,255,255,.7);
+      backdrop-filter: blur(8px);
+      border-right: 1px solid rgba(0,0,0,.06);
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      overflow-y: auto;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--soma-muted);
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      padding: 0 8px;
+      margin-bottom: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--r);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--soma-muted);
+      cursor: pointer;
+      transition: all var(--trans);
+      text-decoration: none;
+      border: 1.5px solid transparent;
+    }
+    .nav-item:hover {
+      background: var(--soma-surface);
+      color: var(--soma-ink);
+    }
+    .nav-item.active {
+      background: var(--soma-ink);
+      color: #fff;
+    }
+    .nav-item .nav-icon { font-size: 1.1rem; width: 22px; text-align: center; }
+
+    /* Nidos en sidebar */
+    .nido-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--r);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--trans);
+      border: 1.5px solid transparent;
+    }
+    .nido-nav:hover { opacity: .85; transform: translateX(2px); }
+    .nido-nav.green  { background: rgba(62,207,122,.1);  border-color: rgba(62,207,122,.2);  color: #1a9952; }
+    .nido-nav.yellow { background: rgba(255,209,102,.1); border-color: rgba(255,209,102,.25); color: #a07800; }
+    .nido-nav.coral  { background: rgba(255,127,107,.1); border-color: rgba(255,127,107,.2);  color: #c44a35; }
+    .nido-nav.purple { background: rgba(181,123,238,.1); border-color: rgba(181,123,238,.2);  color: #7840b8; }
+    .nido-nav.blue   { background: rgba(91,196,250,.1);  border-color: rgba(91,196,250,.2);   color: #0882b8; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 12px;
+      border-radius: var(--r);
+      background: var(--soma-surface);
+      border: 1px solid #e5e3f0;
+      font-size: 12px;
+      color: var(--soma-muted);
+      line-height: 1.5;
+      text-align: center;
+    }
+    .sidebar-footer strong { color: var(--soma-ink); display: block; margin-bottom: 2px; }
+
+    /* ══ MAIN CONTENT ══ */
+    .main {
+      padding: 2rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* ── Hero de bienvenida ── */
+    .welcome-hero {
+      background: var(--soma-ink);
+      border-radius: var(--r-lg);
+      padding: 2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      overflow: hidden;
+      position: relative;
+    }
+    .welcome-hero::before {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(62,207,122,.2) 0%, transparent 70%);
+      top: -80px; right: -40px;
+      pointer-events: none;
+    }
+    .welcome-hero::after {
+      content: '';
+      position: absolute;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(181,123,238,.15) 0%, transparent 70%);
+      bottom: -60px; left: 20%;
+      pointer-events: none;
+    }
+
+    .welcome-text { position: relative; z-index: 1; }
+    .welcome-text .greeting {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--soma-green);
+      margin-bottom: 6px;
+      letter-spacing: .3px;
+    }
+    .welcome-text h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .welcome-text h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--soma-green);
+    }
+    .welcome-text p {
+      font-size: 14px;
+      color: rgba(255,255,255,.6);
+      margin-top: 8px;
+      line-height: 1.6;
+      max-width: 380px;
+    }
+
+    .welcome-nido-badge {
+      position: relative; z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--r-lg);
+      padding: 1.25rem 1.5rem;
+      text-align: center;
+      min-width: 140px;
+      flex-shrink: 0;
+    }
+    .welcome-nido-badge .nido-emoji { font-size: 2.2rem; }
+    .welcome-nido-badge .nido-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255,255,255,.5);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+    .welcome-nido-badge .nido-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .welcome-nido-badge .nido-members {
+      font-size: 11px;
+      color: rgba(255,255,255,.4);
+    }
+
+    /* ── Sección de acciones rápidas ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .75rem;
+    }
+    .section-header h2 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--soma-ink);
+    }
+    .section-header a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--soma-muted);
+      text-decoration: none;
+      transition: color var(--trans);
+    }
+    .section-header a:hover { color: var(--soma-ink); }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .qa-card {
+      background: var(--soma-white);
+      border: 1.5px solid #e5e3f0;
+      border-radius: var(--r-lg);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+      transition: all var(--trans);
+    }
+    .qa-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      border-color: transparent;
+    }
+    .qa-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+    }
+    .qa-icon.green  { background: rgba(62,207,122,.15); }
+    .qa-icon.yellow { background: rgba(255,209,102,.18); }
+    .qa-icon.coral  { background: rgba(255,127,107,.15); }
+    .qa-icon.purple { background: rgba(181,123,238,.15); }
+
+    .qa-card h3 { font-size: 14px; font-weight: 700; color: var(--soma-ink); }
+    .qa-card p  { font-size: 12px; color: var(--soma-muted); line-height: 1.4; }
+
+    /* ── Feed del Nido ── */
+    .feed-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    /* Caja de nueva publicación */
+    .post-composer {
+      background: var(--soma-white);
+      border: 1.5px solid #e5e3f0;
+      border-radius: var(--r-lg);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .composer-top {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .composer-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--soma-purple), var(--soma-blue));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .composer-input {
+      flex: 1;
+      background: var(--soma-surface);
+      border: 1.5px solid #e5e3f0;
+      border-radius: var(--r);
+      padding: 10px 14px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--soma-ink);
+      resize: none;
+      outline: none;
+      min-height: 60px;
+      transition: border-color var(--trans), box-shadow var(--trans);
+    }
+    .composer-input:focus {
+      border-color: var(--soma-green);
+      box-shadow: 0 0 0 3px rgba(62,207,122,.12);
+      background: #fff;
+    }
+    .composer-input::placeholder { color: #bbb; }
+    .composer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .composer-emojis {
+      display: flex;
+      gap: 6px;
+    }
+    .emoji-btn {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: var(--soma-surface);
+      border: 1.5px solid #e5e3f0;
+      font-size: .95rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--trans);
+    }
+    .emoji-btn:hover { background: #ebe9f8; transform: scale(1.1); }
+    .btn-post {
+      padding: 9px 20px;
+      background: var(--soma-ink);
+      color: #fff;
+      border: none;
+      border-radius: var(--r);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--trans);
+    }
+    .btn-post:hover { background: #3a3a5c; transform: translateY(-1px); }
+
+    /* Posts */
+    .post-card {
+      background: var(--soma-white);
+      border: 1.5px solid #e5e3f0;
+      border-radius: var(--r-lg);
+      padding: 1.25rem;
+      margin-bottom: .75rem;
+      transition: box-shadow var(--trans);
+    }
+    .post-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .post-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .post-avatar.green  { background: linear-gradient(135deg,#3ecf7a,#22b866); }
+    .post-avatar.yellow { background: linear-gradient(135deg,#ffd166,#f4b942); color: #5a3e00; }
+    .post-avatar.coral  { background: linear-gradient(135deg,#ff7f6b,#f25c45); }
+    .post-avatar.purple { background: linear-gradient(135deg,#b57bee,#9355d8); }
+    .post-avatar.blue   { background: linear-gradient(135deg,#5bc4fa,#2facee); }
+
+    .post-meta { flex: 1; }
+    .post-meta .name { font-size: 14px; font-weight: 700; color: var(--soma-ink); }
+    .post-meta .time { font-size: 12px; color: var(--soma-muted); }
+
+    .post-nido-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+    .post-nido-tag.coral  { background: rgba(255,127,107,.12); color: #c44a35; }
+    .post-nido-tag.purple { background: rgba(181,123,238,.12); color: #7840b8; }
+    .post-nido-tag.green  { background: rgba(62,207,122,.12);  color: #1a9952; }
+
+    .post-body {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--soma-ink);
+      margin-bottom: 12px;
+    }
+    .post-body .post-emoji { font-size: 1.4rem; }
+
+    .post-reactions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .reaction-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px;
+      border-radius: 100px;
+      border: 1.5px solid #e5e3f0;
+      background: var(--soma-surface);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--soma-muted);
+      cursor: pointer;
+      transition: all var(--trans);
+    }
+    .reaction-btn:hover { border-color: var(--soma-green); color: #1a9952; background: rgba(62,207,122,.08); }
+    .reaction-btn.active { border-color: var(--soma-green); background: rgba(62,207,122,.1); color: #1a9952; }
+
+    /* ── Panel lateral derecho ── */
+    .aside-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .aside-card {
+      background: var(--soma-white);
+      border: 1.5px solid #e5e3f0;
+      border-radius: var(--r-lg);
+      padding: 1.25rem;
+    }
+    .aside-card h3 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--soma-ink);
+      margin-bottom: 1rem;
+    }
+
+    /* Mi Nido info */
+    .nido-info-card {
+      background: var(--soma-ink);
+      border-color: transparent;
+    }
+    .nido-info-card h3 { color: rgba(255,255,255,.7); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; margin-bottom: .75rem; }
+    .nido-big-name {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .nido-desc {
+      font-size: 12px;
+      color: rgba(255,255,255,.5);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .nido-stats {
+      display: flex;
+      gap: 12px;
+    }
+    .nido-stat {
+      flex: 1;
+      background: rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .nido-stat .val { font-size: 1.1rem; font-weight: 700; color: #fff; }
+    .nido-stat .lbl { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 2px; }
+
+    /* Miembros del Nido */
+    .member-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid #f0eeff;
+    }
+    .member-row:last-child { border-bottom: none; }
+    .member-av {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .member-av.green  { background: linear-gradient(135deg,#3ecf7a,#22b866); }
+    .member-av.yellow { background: linear-gradient(135deg,#ffd166,#f4b942); color: #5a3e00; }
+    .member-av.coral  { background: linear-gradient(135deg,#ff7f6b,#f25c45); }
+    .member-av.purple { background: linear-gradient(135deg,#b57bee,#9355d8); }
+
+    .member-info { flex: 1; }
+    .member-info .mname { font-size: 13px; font-weight: 600; color: var(--soma-ink); }
+    .member-info .mrole { font-size: 11px; color: var(--soma-muted); }
+    .member-online {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #e5e3f0;
+    }
+    .member-online.on { background: var(--soma-green); }
+
+    /* Logros */
+    .logro-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0eeff;
+    }
+    .logro-row:last-child { border-bottom: none; }
+    .logro-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .logro-icon.yellow { background: rgba(255,209,102,.18); }
+    .logro-icon.green  { background: rgba(62,207,122,.15); }
+    .logro-icon.purple { background: rgba(181,123,238,.15); }
+    .logro-text .ltitle { font-size: 13px; font-weight: 700; color: var(--soma-ink); }
+    .logro-text .ldesc  { font-size: 11px; color: var(--soma-muted); }
+
+    /* ══ RESPONSIVE ══ */
+    @media (max-width: 1100px) {
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+      .feed-layout   { grid-template-columns: 1fr; }
+      .aside-panel   { display: none; } /* simplificado */
+    }
+
+    @media (max-width: 768px) {
+      :root { --sidebar-w: 0px; }
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main { padding: 1rem; }
+      .welcome-hero { padding: 1.5rem; }
+      .welcome-nido-badge { display: none; }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Blobs -->
+<div class="bg-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- ══ APP SHELL ══ -->
+<div class="app">
+
+  <!-- ── TOPBAR ── -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="#" class="logo">So<span>ma</span></a>
+      <div class="topbar-divider"></div>
+      <div class="topbar-nido">
+        <span class="dot"></span>
+        🔥 Chispa TEA
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="notif-btn" title="Notificaciones">
+        🔔
+        <span class="notif-badge">3</span>
+      </div>
+      <div class="avatar" title="Mi perfil">VR</div>
+    </div>
+  </header>
+
+  <!-- ── SIDEBAR ── -->
+  <nav class="sidebar">
+    <div>
+      <p class="nav-section-title">Principal</p>
+      <a href="#" class="nav-item active">
+        <span class="nav-icon">🏠</span> Inicio
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">🔔</span> Notificaciones
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">🏆</span> Mis logros
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">👤</span> Mi perfil
+      </a>
+    </div>
+
+    <div>
+      <p class="nav-section-title">Mis Nidos</p>
+      <div class="nido-nav coral">🔥 Chispa TEA</div>
+      <div class="nido-nav purple">💜 Calma TDAH</div>
+    </div>
+
+    <div>
+      <p class="nav-section-title">Explorar</p>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">🌿</span> Raíces 8–10
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">☀️</span> Luz 10–12
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">🌊</span> Marea 14–16
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <strong>🧠 Tu psicóloga</strong>
+      Siempre supervisado.<br>Tu seguridad es lo primero.
+    </div>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- Hero de bienvenida -->
+    <div class="welcome-hero">
+      <div class="welcome-text">
+        <p class="greeting">Viernes, 3 de abril · Buen día 🌤️</p>
+        <h1>Bienvenido a <em>Soma</em>,<br>Valentina</h1>
+        <p>Tu espacio está listo. ¿Qué quieres compartir hoy con tu Nido?</p>
+      </div>
+      <div class="welcome-nido-badge">
+        <span class="nido-emoji">🔥</span>
+        <span class="nido-label">Tu Nido</span>
+        <span class="nido-name">Chispa TEA</span>
+        <span class="nido-members">8 miembros activos</span>
+      </div>
+    </div>
+
+    <!-- Acciones rápidas -->
+    <div>
+      <div class="section-header">
+        <h2>¿Qué quieres hacer?</h2>
+      </div>
+      <div class="quick-actions">
+        <div class="qa-card">
+          <div class="qa-icon green">✍️</div>
+          <h3>Publicar en mi Nido</h3>
+          <p>Comparte cómo te sientes hoy</p>
+        </div>
+        <div class="qa-card">
+          <div class="qa-icon yellow">🏆</div>
+          <h3>Ver mis logros</h3>
+          <p>Tienes 2 nuevas medallas</p>
+        </div>
+        <div class="qa-card">
+          <div class="qa-icon coral">📅</div>
+          <h3>Próxima sesión</h3>
+          <p>Lunes 7 de abril · 4:00 PM</p>
+        </div>
+        <div class="qa-card">
+          <div class="qa-icon purple">💬</div>
+          <h3>Mis mensajes</h3>
+          <p>3 sin leer en Chispa TEA</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feed + Aside -->
+    <div class="feed-layout">
+
+      <!-- Feed -->
+      <div>
+        <div class="section-header">
+          <h2>Feed de mi Nido 🔥</h2>
+          <a href="#">Ver todo</a>
+        </div>
+
+        <!-- Compositor de post -->
+        <div class="post-composer">
+          <div class="composer-top">
+            <div class="composer-avatar">VR</div>
+            <textarea class="composer-input" placeholder="¿Qué quieres compartir con tu Nido hoy?"></textarea>
+          </div>
+          <div class="composer-actions">
+            <div class="composer-emojis">
+              <button class="emoji-btn" title="Foto">📷</button>
+              <button class="emoji-btn" title="Emoji">😊</button>
+              <button class="emoji-btn" title="Logro">🏆</button>
+            </div>
+            <button class="btn-post">Publicar</button>
+          </div>
+        </div>
+
+        <!-- Posts de ejemplo -->
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-avatar coral">MS</div>
+            <div class="post-meta">
+              <div class="name">Mateo S.</div>
+              <div class="time">hace 20 min</div>
+            </div>
+            <span class="post-nido-tag coral">🔥 Chispa</span>
+          </div>
+          <div class="post-body">
+            Hoy logré terminar mi tarea de matemáticas sin ayuda <span class="post-emoji">🎉</span><br>
+            Fue difícil pero lo hice. Me siento muy orgulloso.
+          </div>
+          <div class="post-reactions">
+            <button class="reaction-btn active">💚 Celebrar · 5</button>
+            <button class="reaction-btn">⭐ Increíble · 3</button>
+            <button class="reaction-btn">🤗 Te acompaño · 1</button>
+          </div>
+        </div>
+
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-avatar purple">LG</div>
+            <div class="post-meta">
+              <div class="name">Lucía G.</div>
+              <div class="time">hace 1 hora</div>
+            </div>
+            <span class="post-nido-tag purple">💜 Calma</span>
+          </div>
+          <div class="post-body">
+            ¿Alguien más siente que los cambios de rutina son muy difíciles? <span class="post-emoji">😅</span><br>
+            Hoy cambiaron mi horario y me costó mucho adaptarme. Pero estoy bien.
+          </div>
+          <div class="post-reactions">
+            <button class="reaction-btn">💚 Celebrar · 2</button>
+            <button class="reaction-btn active">🤗 Te acompaño · 8</button>
+            <button class="reaction-btn">⭐ Increíble · 0</button>
+          </div>
+        </div>
+
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-avatar green">AR</div>
+            <div class="post-meta">
+              <div class="name">Andrés R.</div>
+              <div class="time">hace 3 horas</div>
+            </div>
+            <span class="post-nido-tag green">🌿 Raíces</span>
+          </div>
+          <div class="post-body">
+            Compartiendo mi dibujo de hoy <span class="post-emoji">🎨</span> Lo hice pensando en cómo me sentí esta semana.
+          </div>
+          <div class="post-reactions">
+            <button class="reaction-btn">💚 Celebrar · 12</button>
+            <button class="reaction-btn">⭐ Increíble · 7</button>
+            <button class="reaction-btn">🤗 Te acompaño · 4</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aside derecho -->
+      <div class="aside-panel">
+
+        <!-- Mi Nido info -->
+        <div class="aside-card nido-info-card">
+          <h3>Mi Nido</h3>
+          <div class="nido-big-name">🔥 Chispa TEA</div>
+          <p class="nido-desc">Grupo de apoyo para jóvenes con TEA. Un espacio para compartir, crecer y celebrar juntos.</p>
+          <div class="nido-stats">
+            <div class="nido-stat">
+              <div class="val">8</div>
+              <div class="lbl">Miembros</div>
+            </div>
+            <div class="nido-stat">
+              <div class="val">24</div>
+              <div class="lbl">Posts</div>
+            </div>
+            <div class="nido-stat">
+              <div class="val">3</div>
+              <div class="lbl">Online</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Miembros activos -->
+        <div class="aside-card">
+          <h3>Miembros activos</h3>
+          <div class="member-row">
+            <div class="member-av coral">MS</div>
+            <div class="member-info">
+              <div class="mname">Mateo S.</div>
+              <div class="mrole">Miembro</div>
+            </div>
+            <div class="member-online on"></div>
+          </div>
+          <div class="member-row">
+            <div class="member-av purple">LG</div>
+            <div class="member-info">
+              <div class="mname">Lucía G.</div>
+              <div class="mrole">Miembro</div>
+            </div>
+            <div class="member-online on"></div>
+          </div>
+          <div class="member-row">
+            <div class="member-av yellow">PM</div>
+            <div class="member-info">
+              <div class="mname">Psic. Mariana</div>
+              <div class="mrole">Psicóloga ✦</div>
+            </div>
+            <div class="member-online on"></div>
+          </div>
+          <div class="member-row">
+            <div class="member-av green">AR</div>
+            <div class="member-info">
+              <div class="mname">Andrés R.</div>
+              <div class="mrole">Miembro</div>
+            </div>
+            <div class="member-online"></div>
+          </div>
+        </div>
+
+        <!-- Mis logros recientes -->
+        <div class="aside-card">
+          <h3>Mis logros recientes 🏆</h3>
+          <div class="logro-row">
+            <div class="logro-icon yellow">⭐</div>
+            <div class="logro-text">
+              <div class="ltitle">Primera publicación</div>
+              <div class="ldesc">¡Compartiste por primera vez!</div>
+            </div>
+          </div>
+          <div class="logro-row">
+            <div class="logro-icon green">🌱</div>
+            <div class="logro-text">
+              <div class="ltitle">Semilla plantada</div>
+              <div class="ldesc">7 días seguidos en Soma</div>
+            </div>
+          </div>
+          <div class="logro-row">
+            <div class="logro-icon purple">💜</div>
+            <div class="logro-text">
+              <div class="ltitle">Apoyo mutuo</div>
+              <div class="ldesc">Reaccionaste a 10 posts</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>
