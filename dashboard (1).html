@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Soma — Mi Nido</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--g:#3ecf7a;--y:#ffd166;--c:#ff7f6b;--p:#b57bee;--b:#5bc4fa;--ink:#2d2d44;--muted:#7a7a96;--surf:#f4f2ff;--white:#fff;--border:#e8e5f5;--r:14px;--r-lg:20px;--sw:252px;--tr:.2s cubic-bezier(.4,0,.2,1);--fd:'Fraunces',serif;--fb:'Plus Jakarta Sans',sans-serif}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--fb);background:var(--surf);color:var(--ink);min-height:100dvh;overflow-x:hidden}
+    .blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    .blob{position:absolute;border-radius:50%;filter:blur(100px);opacity:.09;animation:drift 18s ease-in-out infinite alternate}
+    .b1{width:560px;height:560px;background:var(--g);top:-140px;left:-100px}
+    .b2{width:400px;height:400px;background:var(--y);top:42%;right:-70px;animation-delay:-6s}
+    .b3{width:360px;height:360px;background:var(--p);bottom:-100px;left:30%;animation-delay:-11s}
+    @keyframes drift{from{transform:translate(0,0)scale(1)}to{transform:translate(28px,20px)scale(1.06)}}
+    .app{position:relative;z-index:1;display:grid;grid-template-columns:var(--sw) 1fr;grid-template-rows:62px 1fr;min-height:100dvh}
+    .topbar{grid-column:1/-1;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,.05);display:flex;align-items:center;justify-content:space-between;padding:0 1.4rem;position:sticky;top:0;z-index:60}
+    .topbar-l{display:flex;align-items:center;gap:.9rem}
+    .logo{font-family:var(--fd);font-size:1.5rem;font-weight:700;color:var(--ink);text-decoration:none}
+    .logo span{color:var(--g)}
+    .div-v{width:1px;height:20px;background:var(--border)}
+    .nido-pill{display:flex;align-items:center;gap:6px;background:rgba(62,207,122,.08);border:1px solid rgba(62,207,122,.2);padding:4px 12px;border-radius:100px;font-size:12.5px;font-weight:600;color:#1a9952}
+    .live{width:6px;height:6px;border-radius:50%;background:var(--g);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .topbar-r{display:flex;align-items:center;gap:8px}
+    .icon-btn{width:36px;height:36px;border-radius:50%;background:var(--surf);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.9rem;cursor:pointer;transition:background var(--tr)}
+    .icon-btn:hover{background:#eceaf7}
+    .av-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--b));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer;border:2px solid rgba(255,255,255,.8);overflow:hidden}
+    .sidebar{background:rgba(255,255,255,.75);backdrop-filter:blur(10px);border-right:1px solid rgba(0,0,0,.05);padding:1.4rem 1rem;display:flex;flex-direction:column;gap:1.6rem;overflow-y:auto}
+    .nav-lbl{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.9px;text-transform:uppercase;padding:0 8px;margin-bottom:3px}
+    .nav-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r);font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;transition:all var(--tr);text-decoration:none;border:none;background:none;width:100%;text-align:left;font-family:var(--fb)}
+    .nav-item:hover{background:var(--surf);color:var(--ink)}
+    .nav-item.active{background:var(--ink);color:#fff}
+    .nav-ico{font-size:1rem;width:20px;text-align:center}
+    .nn{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;transition:all var(--tr);border:1.5px solid transparent;margin-bottom:3px}
+    .nn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .nn-c{background:rgba(255,127,107,.08);border-color:rgba(255,127,107,.18);color:#c44a35}.nn-c .nn-dot{background:#ff7f6b}
+    .nn-p{background:rgba(181,123,238,.08);border-color:rgba(181,123,238,.18);color:#7840b8}.nn-p .nn-dot{background:#b57bee}
+    .nn-g{background:rgba(62,207,122,.08);border-color:rgba(62,207,122,.18);color:#1a9952}.nn-g .nn-dot{background:#3ecf7a}
+    .nn-b{background:rgba(91,196,250,.08);border-color:rgba(91,196,250,.18);color:#0771a0}.nn-b .nn-dot{background:#5bc4fa}
+    .sb-footer{margin-top:auto;padding:11px 13px;border-radius:var(--r);background:var(--surf);border:1px solid var(--border);font-size:11.5px;color:var(--muted);line-height:1.55;text-align:center}
+    .sb-footer strong{color:var(--ink);display:block;margin-bottom:2px;font-size:12.5px}
+    .main{padding:1.6rem 2rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.4rem}
+    .section{display:none;flex-direction:column;gap:1.4rem}
+    .section.active{display:flex}
+    .hero{background:var(--ink);border-radius:var(--r-lg);padding:1.7rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;overflow:hidden;position:relative}
+    .hero::before{content:'';position:absolute;width:300px;height:300px;background:radial-gradient(circle,rgba(62,207,122,.16),transparent 68%);top:-80px;right:-40px}
+    .hero-t{position:relative;z-index:1}
+    .hero-g{font-size:12px;font-weight:600;color:rgba(62,207,122,.9);margin-bottom:6px}
+    .hero-t h1{font-family:var(--fd);font-size:clamp(1.45rem,2.6vw,2rem);font-weight:700;color:#fff;line-height:1.2}
+    .hero-t h1 em{font-style:italic;font-weight:300;color:var(--g)}
+    .hero-t p{font-size:13px;color:rgba(255,255,255,.5);margin-top:7px;line-height:1.65;max-width:360px}
+    .hero-bdg{position:relative;z-index:1;flex-shrink:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--r-lg);padding:1rem 1.3rem;text-align:center;min-width:130px}
+    .hb-dot{width:10px;height:10px;border-radius:50%;background:var(--c);margin:0 auto 8px;animation:pulse 2s infinite}
+    .hb-l{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.7px}
+    .hb-n{font-size:14.5px;font-weight:700;color:#fff;margin-top:3px}
+    .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+    .sec-hdr h2{font-family:var(--fd);font-size:1.1rem;font-weight:700;color:var(--ink)}
+    .sec-hdr button,.sec-hdr a{font-size:12.5px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--fb);text-decoration:none;transition:color var(--tr)}
+    .sec-hdr button:hover,.sec-hdr a:hover{color:var(--ink)}
+    /* Espigas */
+    .espigas-list{display:flex;flex-direction:column;gap:.6rem}
+    .espiga-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1rem 1.2rem;cursor:pointer;transition:all var(--tr);display:flex;align-items:center;gap:12px}
+    .espiga-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.07);border-color:transparent;transform:translateY(-1px)}
+    .espiga-ico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0}
+    .ei-y{background:rgba(255,209,102,.15)}.ei-g{background:rgba(62,207,122,.12)}.ei-p{background:rgba(181,123,238,.12)}.ei-c{background:rgba(255,127,107,.12)}.ei-b{background:rgba(91,196,250,.12)}
+    .espiga-info{flex:1}.espiga-name{font-size:14px;font-weight:700;color:var(--ink)}.espiga-desc{font-size:12px;color:var(--muted);margin-top:2px}
+    .espiga-count{font-size:11.5px;font-weight:600;color:var(--muted);background:var(--surf);padding:4px 10px;border-radius:100px}
+    /* Feed */
+    .feed-layout{display:grid;grid-template-columns:1fr 276px;gap:1.4rem;align-items:start}
+    .composer{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1.1rem;margin-bottom:.8rem;transition:border-color var(--tr),box-shadow var(--tr)}
+    .composer:focus-within{border-color:rgba(62,207,122,.35);box-shadow:0 0 0 3px rgba(62,207,122,.1)}
+    .c-row{display:flex;gap:10px;align-items:flex-start}
+    .c-av{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--p),var(--b));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;overflow:hidden}
+    .c-ta{flex:1;background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);padding:9px 12px;font-family:var(--fb);font-size:13.5px;color:var(--ink);resize:none;outline:none;min-height:60px;line-height:1.55;transition:border-color var(--tr)}
+    .c-ta:focus{border-color:var(--g);background:#fff}.c-ta::placeholder{color:#c0bcd8}
+    .c-opts{margin:8px 0 0 42px;display:flex;flex-direction:column;gap:8px}
+    .c-opts select{width:100%;padding:7px 11px;border:1.5px solid var(--border);border-radius:var(--r);font-family:var(--fb);font-size:13px;color:var(--ink);background:var(--surf);outline:none}
+    .c-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+    .tool-btn{padding:6px 12px;background:var(--surf);border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;cursor:pointer;font-family:var(--fb);font-size:12.5px;color:var(--muted);transition:all var(--tr)}
+    .tool-btn:hover{background:#eceaf7;color:var(--ink)}
+    .btn-post{padding:7px 18px;background:var(--ink);color:#fff;border:none;border-radius:var(--r);font-family:var(--fb);font-size:13px;font-weight:700;cursor:pointer;transition:all var(--tr)}
+    .btn-post:hover{background:#3a3a5c;transform:translateY(-1px)}.btn-post:disabled{opacity:.4;pointer-events:none}
+    .img-prev-wrap{margin:6px 0 0 0;display:none}
+    .img-prev-wrap.vis{display:block}
+    .img-prev-wrap img{max-height:150px;border-radius:var(--r);border:1.5px solid var(--border)}
+    .feed-fltrs{display:flex;gap:7px;margin-bottom:.9rem;flex-wrap:wrap}
+    .ff{padding:5px 13px;border-radius:100px;border:1.5px solid var(--border);background:var(--surf);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all var(--tr);font-family:var(--fb)}
+    .ff:hover{color:var(--ink);border-color:#c5c0e0}.ff.active{background:var(--ink);color:#fff;border-color:transparent}
+    .post-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1.1rem;margin-bottom:.7rem;animation:fadeUp .3s ease}
+    .post-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.06)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    .p-espiga{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:rgba(255,209,102,.12);color:#8a6200;margin-bottom:8px}
+    .p-hdr{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+    .p-av{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden}
+    .p-meta{flex:1}.p-name{font-size:13.5px;font-weight:700;color:var(--ink)}.p-time{font-size:11.5px;color:var(--muted);margin-top:1px}
+    .p-del{background:none;border:none;cursor:pointer;font-size:1rem;color:var(--muted);transition:color var(--tr)}.p-del:hover{color:var(--c)}
+    .p-body{font-size:13.5px;line-height:1.72;color:var(--ink);margin-bottom:10px}
+    .p-img{width:100%;border-radius:var(--r);object-fit:cover;max-height:280px;margin-bottom:10px;border:1.5px solid var(--border);display:block}
+    .reacts{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--border)}
+    .rb{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:100px;border:1.5px solid var(--border);background:var(--surf);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all var(--tr);font-family:var(--fb)}
+    .rb:hover{border-color:var(--g);color:#1a9952;background:rgba(62,207,122,.06)}
+    .rc{font-weight:700}
+    /* señales */
+    .senal-list{display:flex;flex-direction:column;gap:.7rem}
+    .senal-item{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1rem 1.1rem;animation:fadeUp .3s ease}
+    .senal-meta{font-size:11.5px;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .senal-tipo{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:100px}
+    .st-preg{background:rgba(91,196,250,.12);color:#0565a0}.st-sug{background:rgba(62,207,122,.12);color:#1a9952}
+    .senal-body{font-size:13.5px;color:var(--ink);line-height:1.55}
+    .senal-resp{margin-top:8px;background:rgba(181,123,238,.07);border-left:3px solid var(--p);padding:8px 11px;border-radius:0 var(--r) var(--r) 0;font-size:13px;color:#5a3099;line-height:1.5}
+    .senal-resp strong{font-size:11px;display:block;margin-bottom:3px;color:#7840b8;text-transform:uppercase;letter-spacing:.5px}
+    /* aside */
+    .aside{display:flex;flex-direction:column;gap:1rem}
+    .ac{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1.1rem}
+    .ac h3{font-family:var(--fd);font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:.85rem}
+    .ac-nido{background:var(--ink);border-color:transparent}
+    .ac-nido h3{color:rgba(255,255,255,.45);font-size:10.5px;text-transform:uppercase;letter-spacing:.7px}
+    .nido-big{font-family:var(--fd);font-size:1.3rem;font-weight:700;color:#fff;margin:5px 0}
+    .nido-dsc{font-size:11.5px;color:rgba(255,255,255,.42);line-height:1.55;margin-bottom:12px}
+    .n-stats{display:flex;gap:9px}
+    .ns{flex:1;background:rgba(255,255,255,.06);border-radius:9px;padding:7px 8px;text-align:center}
+    .ns-v{font-size:1.05rem;font-weight:700;color:#fff}.ns-l{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px}
+    /* modal */
+    .modal-ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.3);display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+    .modal-ov.open{display:flex}
+    .modal{background:#fff;border-radius:var(--r-lg);padding:2rem;max-width:380px;width:90%;box-shadow:0 20px 50px rgba(0,0,0,.18);animation:popIn .22s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;gap:1rem}
+    @keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+    .modal h3{font-family:var(--fd);font-size:1.15rem;font-weight:700;color:var(--ink)}
+    .modal .sub{font-size:13px;color:var(--muted)}
+    .modal .ig{display:flex;flex-direction:column;gap:5px}
+    .modal .ig label{font-size:12.5px;font-weight:600;color:var(--ink)}
+    .modal .ig input,.modal .ig textarea,.modal .ig select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--r);font-family:var(--fb);font-size:13.5px;color:var(--ink);background:var(--surf);outline:none;transition:border-color var(--tr)}
+    .modal .ig input:focus,.modal .ig textarea:focus,.modal .ig select:focus{border-color:var(--g);background:#fff}
+    .modal .ig textarea{resize:vertical;min-height:80px}
+    .modal-btns{display:flex;gap:9px}
+    .modal-btns button{flex:1;padding:10px;border-radius:var(--r);font-family:var(--fb);font-size:13.5px;font-weight:700;cursor:pointer;transition:all var(--tr)}
+    .btn-cancel{background:var(--surf);border:1.5px solid var(--border);color:var(--muted)}
+    .btn-ok{background:var(--ink);border:none;color:#fff}.btn-ok:hover{background:#3a3a5c}
+    .btn-del{background:#ff7f6b;border:none;color:#fff}.btn-del:hover{background:#f25c45}
+    /* foto perfil */
+    .foto-wrap{display:flex;align-items:center;gap:1rem;background:var(--surf);border:1.5px dashed var(--border);border-radius:var(--r);padding:.9rem}
+    .foto-av{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--b));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+    .foto-av img{width:100%;height:100%;object-fit:cover}
+    /* toast & splash */
+    .tz{position:fixed;bottom:1.6rem;right:1.6rem;z-index:300;display:flex;flex-direction:column;gap:8px}
+    .toast{padding:12px 16px;border-radius:var(--r);font-size:13.5px;font-weight:500;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.13);animation:slideR .25s ease;max-width:280px}
+    .t-ok{background:var(--g);color:#0d5c30}.t-err{background:var(--c)}.t-inf{background:var(--p)}
+    @keyframes slideR{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+    .splash{position:fixed;inset:0;z-index:100;background:var(--surf);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;transition:opacity .5s ease}
+    .splash.hidden{opacity:0;pointer-events:none}
+    .splash-logo{font-family:var(--fd);font-size:3rem;font-weight:700;color:var(--ink);animation:breathe 2s ease-in-out infinite}
+    .splash-logo span{color:var(--g)}
+    @keyframes breathe{0%,100%{opacity:1}50%{opacity:.5}}
+    .splash p{font-size:14px;color:var(--muted)}
+    .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1rem;text-align:center;gap:.7rem;color:var(--muted)}
+    .es-ico{font-size:2.2rem;opacity:.4}
+    @media(max-width:1080px){.feed-layout{grid-template-columns:1fr}.aside{display:none}}
+    @media(max-width:740px){:root{--sw:0px}.sidebar{display:none}.main{padding:1rem}.hero-bdg{display:none}}
+  </style>
+</head>
+<body>
+<div class="splash" id="splash"><div class="splash-logo">So<span>ma</span></div><p>Cargando tu espacio…</p></div>
+<div class="blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<!-- Modal: enviar señal -->
+<div class="modal-ov" id="modalSenal">
+  <div class="modal">
+    <h3>📡 Enviar Señal a Soma</h3>
+    <p class="sub">Solo las Soma pueden leer tus Señales. Úsalas para preguntas o sugerencias de Espigas.</p>
+    <div class="ig"><label>Tipo de Señal</label>
+      <select id="senalTipo">
+        <option value="pregunta">❓ Tengo una pregunta</option>
+        <option value="sugerencia">💡 Sugerir una Espiga nueva</option>
+      </select>
+    </div>
+    <div class="ig"><label>Mensaje</label><textarea id="senalBody" placeholder="Escribe tu mensaje…"></textarea></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modalSenal')">Cancelar</button>
+      <button class="btn-ok" onclick="enviarSenal()">Enviar 📡</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: perfil -->
+<div class="modal-ov" id="modalPerfil">
+  <div class="modal">
+    <h3>✏️ Mi perfil</h3>
+    <div class="foto-wrap">
+      <div class="foto-av" id="fotoAvModal"></div>
+      <div style="flex:1;font-size:12.5px;color:var(--muted);line-height:1.5">
+        <strong style="color:var(--ink);display:block;margin-bottom:3px">Foto de perfil</strong>
+        JPG o PNG · máx 2 MB
+        <label style="display:block;margin-top:5px;cursor:pointer;color:var(--g);font-weight:700;font-size:12.5px">📷 Cambiar foto<input type="file" id="fotoFile" accept="image/*" style="display:none" onchange="onFotoChange(this)"/></label>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="ig"><label>Nombre</label><input id="pfN" type="text"/></div>
+      <div class="ig"><label>Apellido</label><input id="pfA" type="text"/></div>
+    </div>
+    <div class="ig"><label>Estado de hoy 🌱</label><input id="pfEstado" type="text" placeholder="Ej: Contento y con energía 😊" maxlength="80"/></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modalPerfil')">Cancelar</button>
+      <button class="btn-ok" onclick="savePerfil()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: confirmar eliminar -->
+<div class="modal-ov" id="modalDel">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:2rem">🗑️</div>
+    <h3>¿Eliminar publicación?</h3>
+    <p class="sub">Esta acción no se puede deshacer.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modalDel')">Cancelar</button>
+      <button class="btn-del" id="btnConfirmDel">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="tz" id="tz"></div>
+
+<div class="app">
+  <header class="topbar">
+    <div class="topbar-l">
+      <a class="logo">So<span>ma</span></a>
+      <div class="div-v"></div>
+      <div class="nido-pill"><span class="live"></span><span id="nidoLabel">Mi Nido</span></div>
+    </div>
+    <div class="topbar-r">
+      <div class="icon-btn" onclick="openModal('modalSenal')" title="Enviar Señal a Soma">📡</div>
+      <div class="av-btn" id="avBtn" onclick="openPerfil()">?</div>
+    </div>
+  </header>
+  <nav class="sidebar">
+    <div>
+      <p class="nav-lbl">Principal</p>
+      <button class="nav-item active" onclick="goSection('inicio',this)"><span class="nav-ico">🏠</span>Inicio</button>
+      <button class="nav-item" onclick="goSection('espigas',this)"><span class="nav-ico">🌾</span>Espigas</button>
+      <button class="nav-item" onclick="goSection('senales',this)"><span class="nav-ico">📡</span>Mis Señales</button>
+      <button class="nav-item" onclick="doLogout()"><span class="nav-ico">🚪</span>Cerrar sesión</button>
+    </div>
+    <div>
+      <p class="nav-lbl">Mis Nidos</p>
+      <div id="nidoLinks"><p style="font-size:12px;color:var(--muted);padding:0 11px">Cargando…</p></div>
+    </div>
+    <div class="sb-footer"><strong id="sbName">Cargando…</strong>Siempre supervisado. Tu seguridad es lo primero.</div>
+  </nav>
+  <main class="main">
+    <!-- INICIO -->
+    <div class="section active" id="sec-inicio">
+      <div class="hero">
+        <div class="hero-t">
+          <p class="hero-g" id="heroG">¡Hola, Somita!</p>
+          <h1>Bienvenido a <em>Soma</em>,<br><span id="heroName">…</span></h1>
+          <p>Tu espacio está listo. ¿Qué quieres compartir hoy en tu Nido?</p>
+        </div>
+        <div class="hero-bdg"><div class="hb-dot"></div><div class="hb-l">Tu Nido</div><div class="hb-n" id="heroNido">…</div></div>
+      </div>
+      <div class="feed-layout">
+        <div>
+          <div class="sec-hdr"><h2>Publicar en el Nido</h2></div>
+          <div class="composer">
+            <div class="c-row">
+              <div class="c-av" id="compAv">?</div>
+              <textarea class="c-ta" id="postBody" placeholder="¿Qué quieres compartir hoy, Somita?" rows="3" oninput="togglePost()"></textarea>
+            </div>
+            <div class="c-opts">
+              <select id="postEspiga"><option value="">🌾 Elige una Espiga (tema)…</option></select>
+              <div style="display:flex;align-items:center;gap:10px">
+                <label style="font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer">
+                  📷 Adjuntar foto <input type="file" id="postImg" accept="image/*" style="display:none" onchange="onPostImgChange(this)"/>
+                </label>
+                <span id="postImgName" style="font-size:12px;color:var(--muted)"></span>
+              </div>
+              <div class="img-prev-wrap" id="postImgPrev"><img id="postImgPreview"/><button onclick="clearPostImg()" style="background:none;border:none;cursor:pointer;color:var(--c);font-size:12.5px;margin-left:8px;font-family:var(--fb)">✕ Quitar</button></div>
+            </div>
+            <div class="c-foot">
+              <span></span>
+              <button class="btn-post" id="btnPost" onclick="publicar()" disabled>Publicar 🌱</button>
+            </div>
+          </div>
+          <div class="feed-fltrs" id="feedFiltros">
+            <button class="ff active" onclick="setFF(this,'todos')">Todos</button>
+          </div>
+          <div id="feedList"><div class="empty-state"><div class="es-ico">⌛</div><p>Cargando publicaciones…</p></div></div>
+        </div>
+        <div class="aside">
+          <div class="ac ac-nido">
+            <h3>Tu Nido activo</h3>
+            <div class="nido-big" id="asideNido">…</div>
+            <div class="nido-dsc" id="asideDesc">…</div>
+            <div class="n-stats">
+              <div class="ns"><div class="ns-v" id="stMiembros">–</div><div class="ns-l">Somitas</div></div>
+              <div class="ns"><div class="ns-v" id="stPosts">–</div><div class="ns-l">Posts</div></div>
+            </div>
+          </div>
+          <div class="ac">
+            <h3>Espigas</h3>
+            <div id="espigasMini"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ESPIGAS -->
+    <div class="section" id="sec-espigas">
+      <div class="sec-hdr"><h2>🌾 Espigas del Nido</h2></div>
+      <p style="font-size:13.5px;color:var(--muted)">Los temas donde puedes publicar. Solo las Soma pueden crear Espigas nuevas.</p>
+      <div class="espigas-list" id="espigasList"><div class="empty-state"><div class="es-ico">⌛</div><p>Cargando…</p></div></div>
+    </div>
+    <!-- SEÑALES -->
+    <div class="section" id="sec-senales">
+      <div class="sec-hdr"><h2>📡 Mis Señales</h2><button onclick="openModal('modalSenal')">+ Nueva Señal</button></div>
+      <p style="font-size:13.5px;color:var(--muted)">Mensajes privados que solo leen las Soma. Usa Señales para preguntas o sugerir nuevas Espigas.</p>
+      <div class="senal-list" id="senalList"><div class="empty-state"><div class="es-ico">📡</div><p>Aún no has enviado ninguna Señal.</p></div></div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import{getFirestore,doc,getDoc,updateDoc,addDoc,deleteDoc,collection,query,where,orderBy,getDocs,serverTimestamp}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import{getStorage,ref as sRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+const cfg={apiKey:"AIzaSyAGGSeXSbNxb3MGOAnUcsHVboABnfbea5I",authDomain:"soma-266d4.firebaseapp.com",projectId:"soma-266d4",storageBucket:"soma-266d4.firebasestorage.app",messagingSenderId:"796190024231",appId:"1:796190024231:web:6b22f6c81e3f3fb0c4e402"};
+const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app),storage=getStorage(app);
+let cu=null,ud=null,espigas=[],posts=[],ff='todos',pendDel=null,newFoto=null;
+const avColors=['#ff7f6b','#b57bee','#3ecf7a','#5bc4fa','#ffd166'];
+const eiColors=['ei-y','ei-g','ei-p','ei-c','ei-b'];
+onAuthStateChanged(auth,async u=>{
+  if(!u){location.href='index.html';return;}
+  const s=await getDoc(doc(db,'usuarios',u.uid));
+  if(!s.exists()||s.data().estado!=='activo'){location.href='index.html';return;}
+  if(s.data().rol!=='somita'){location.href=s.data().rol==='admin'?'admin.html':'moderador.html';return;}
+  cu=u;ud=s.data();hideSplash();init();
+});
+async function init(){
+  setAv();
+  document.getElementById('heroName').textContent=ud.nombre||'Somita';
+  document.getElementById('heroG').textContent=saludo();
+  document.getElementById('sbName').textContent=ud.nombreCompleto||ud.nombre||'Somita';
+  const nids=ud.nidos||[];
+  // nidos sidebar
+  const nl=document.getElementById('nidoLinks');
+  const nc=['nn-c','nn-p','nn-g','nn-b'];
+  nl.innerHTML='';
+  for(let i=0;i<nids.length;i++){
+    const ns2=await getDoc(doc(db,'nidos',nids[i]));
+    const nombre=ns2.exists()?ns2.data().nombre:nids[i];
+    nl.innerHTML+=`<div class="nn ${nc[i%nc.length]}"><span class="nn-dot"></span>${nombre}</div>`;
+    if(i===0){
+      document.getElementById('nidoLabel').textContent=nombre;
+      document.getElementById('heroNido').textContent=nombre;
+      document.getElementById('asideNido').textContent=nombre;
+      document.getElementById('asideDesc').textContent=ns2.exists()?ns2.data().descripcion||'':'';
+      const mu=await getDocs(query(collection(db,'usuarios'),where('nidos','array-contains',nids[0])));
+      const mp=await getDocs(query(collection(db,'posts'),where('nidoId','==',nids[0])));
+      document.getElementById('stMiembros').textContent=mu.size;
+      document.getElementById('stPosts').textContent=mp.size;
+    }
+  }
+  if(nids.length===0)nl.innerHTML='<p style="font-size:12px;color:var(--muted);padding:0 11px">Sin Nidos asignados.</p>';
+  await loadEspigas();await loadPosts();await loadSenales();
+}
+function setAv(){
+  const ini=(ud.nombre||'S')[0].toUpperCase();
+  const av=document.getElementById('avBtn');
+  const ca=document.getElementById('compAv');
+  if(ud.fotoPerfil){av.innerHTML=`<img src="${ud.fotoPerfil}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;ca.innerHTML=`<img src="${ud.fotoPerfil}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;}
+  else{av.textContent=ini;ca.textContent=ini;}
+}
+async function loadEspigas(){
+  const s=await getDocs(collection(db,'espigas'));
+  espigas=s.docs.map(d=>({id:d.id,...d.data()}));
+  // select
+  document.getElementById('postEspiga').innerHTML='<option value="">🌾 Elige una Espiga…</option>'+espigas.map(e=>`<option value="${e.id}">${e.icono||'🌾'} ${e.nombre}</option>`).join('');
+  // filtros
+  const flt=document.getElementById('feedFiltros');
+  flt.innerHTML='<button class="ff active" onclick="setFF(this,\'todos\')">Todos</button>'+espigas.map(e=>`<button class="ff" onclick="setFF(this,'${e.id}')">${e.icono||'🌾'} ${e.nombre}</button>`).join('');
+  // aside mini
+  document.getElementById('espigasMini').innerHTML=espigas.slice(0,5).map(e=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer" onclick="goSection('espigas')">${e.icono||'🌾'} <span style="font-weight:600">${e.nombre}</span></div>`).join('');
+  // lista espigas
+  document.getElementById('espigasList').innerHTML=espigas.length===0
+    ?'<div class="empty-state"><div class="es-ico">🌾</div><p>Las Soma crearán Espigas pronto.</p></div>'
+    :espigas.map((e,i)=>`<div class="espiga-card"><div class="espiga-ico ${eiColors[i%eiColors.length]}">${e.icono||'🌾'}</div><div class="espiga-info"><div class="espiga-name">${e.nombre}</div><div class="espiga-desc">${e.descripcion||''}</div></div><span class="espiga-count">${e.postCount||0} posts</span></div>`).join('');
+}
+async function loadPosts(){
+  const nids=ud.nidos||[];
+  if(nids.length===0){document.getElementById('feedList').innerHTML='<div class="empty-state"><div class="es-ico">🏡</div><p>Aún no tienes Nidos asignados.</p></div>';return;}
+  const s=await getDocs(query(collection(db,'posts'),where('nidoId','in',nids),orderBy('creadoEn','desc')));
+  posts=s.docs.map(d=>({id:d.id,...d.data()}));renderFeed();
+}
+function renderFeed(){
+  const list=ff==='todos'?posts:posts.filter(p=>p.espigaId===ff);
+  document.getElementById('feedList').innerHTML=list.length===0
+    ?'<div class="empty-state"><div class="es-ico">✍️</div><p>Sé el primero en publicar.</p></div>'
+    :list.map(p=>renderPost(p)).join('');
+}
+function renderPost(p){
+  const col=avColors[(p.aid||'').charCodeAt(0)%avColors.length];
+  const isMine=p.aid===cu?.uid;
+  const esp=espigas.find(e=>e.id===p.espigaId);
+  return`<div class="post-card">
+    ${esp?`<span class="p-espiga">${esp.icono||'🌾'} ${esp.nombre}</span>`:''}
+    <div class="p-hdr">
+      <div class="p-av" style="background:${col}">${p.autorFoto?`<img src="${p.autorFoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`:((p.autorNombre||'S')[0].toUpperCase())}</div>
+      <div class="p-meta"><div class="p-name">${p.autorNombre||'Somita'}</div><div class="p-time">${ago(p.creadoEn)}</div></div>
+      ${isMine?`<button class="p-del" onclick="confirmDel('${p.id}')">🗑️</button>`:''}
+    </div>
+    ${p.cuerpo?`<div class="p-body">${escHtml(p.cuerpo)}</div>`:''}
+    ${p.imagenUrl?`<img class="p-img" src="${p.imagenUrl}" loading="lazy"/>`:''}
+    <div class="reacts">
+      ${['❤️','🌟','👏','🎉'].map(em=>`<button class="rb" onclick="react('${p.id}','${em}')">${em} <span class="rc">${p.reacts?.[em]||0}</span></button>`).join('')}
+    </div>
+  </div>`;
+}
+window.publicar=async()=>{
+  const cuerpo=document.getElementById('postBody').value.trim();
+  const espigaId=document.getElementById('postEspiga').value;
+  const nids=ud.nidos||[];
+  if(nids.length===0){toast('Sin Nidos asignados','t-err');return;}
+  document.getElementById('btnPost').disabled=true;document.getElementById('btnPost').textContent='Publicando…';
+  let imagenUrl='';
+  const fi=document.getElementById('postImg');
+  if(fi.files[0]){
+    const r=sRef(storage,`posts/${cu.uid}/${Date.now()}`);
+    await uploadBytes(r,fi.files[0]);imagenUrl=await getDownloadURL(r);
+  }
+  await addDoc(collection(db,'posts'),{aid:cu.uid,autorNombre:ud.nombreCompleto,autorFoto:ud.fotoPerfil||'',nidoId:nids[0],espigaId,cuerpo,imagenUrl,reacts:{'❤️':0,'🌟':0,'👏':0,'🎉':0},creadoEn:serverTimestamp()});
+  document.getElementById('postBody').value='';clearPostImg();
+  document.getElementById('btnPost').disabled=true;document.getElementById('btnPost').textContent='Publicar 🌱';
+  toast('¡Publicado en el Nido! 🌱','t-ok');await loadPosts();
+};
+window.react=async(pid,em)=>{const p=posts.find(x=>x.id===pid);if(!p)return;await updateDoc(doc(db,'posts',pid),{[`reacts.${em}`]:(p.reacts?.[em]||0)+1});await loadPosts();};
+window.confirmDel=(id)=>{pendDel=id;openModal('modalDel');document.getElementById('btnConfirmDel').onclick=async()=>{await deleteDoc(doc(db,'posts',pendDel));closeModal('modalDel');toast('Publicación eliminada','t-ok');await loadPosts();};};
+window.setFF=(btn,v)=>{document.querySelectorAll('.ff').forEach(b=>b.classList.remove('active'));btn.classList.add('active');ff=v;renderFeed();};
+async function loadSenales(){
+  const s=await getDocs(query(collection(db,'senales'),where('uid','==',cu.uid),orderBy('creadoEn','desc')));
+  const list=s.docs.map(d=>({id:d.id,...d.data()}));
+  document.getElementById('senalList').innerHTML=list.length===0
+    ?'<div class="empty-state"><div class="es-ico">📡</div><p>Aún no has enviado Señales.</p></div>'
+    :list.map(s=>`<div class="senal-item"><div class="senal-meta"><span class="senal-tipo ${s.tipo==='pregunta'?'st-preg':'st-sug'}">${s.tipo==='pregunta'?'❓ Pregunta':'💡 Sugerencia'}</span><span>${ago(s.creadoEn)}</span></div><div class="senal-body">${escHtml(s.cuerpo)}</div>${s.respuesta?`<div class="senal-resp"><strong>Soma respondió</strong>${escHtml(s.respuesta)}</div>`:''}</div>`).join('');
+}
+window.enviarSenal=async()=>{
+  const tipo=document.getElementById('senalTipo').value;
+  const cuerpo=document.getElementById('senalBody').value.trim();
+  if(!cuerpo){toast('Escribe tu mensaje','t-err');return;}
+  await addDoc(collection(db,'senales'),{uid:cu.uid,autorNombre:ud.nombreCompleto,tipo,cuerpo,respuesta:'',leida:false,creadoEn:serverTimestamp()});
+  closeModal('modalSenal');document.getElementById('senalBody').value='';
+  toast('Señal enviada 📡','t-ok');await loadSenales();
+};
+window.openPerfil=()=>{
+  document.getElementById('pfN').value=ud.nombre||'';
+  document.getElementById('pfA').value=ud.apellido||'';
+  document.getElementById('pfEstado').value=ud.estadoAnimo||'';
+  const av=document.getElementById('fotoAvModal');
+  av.innerHTML=ud.fotoPerfil?`<img src="${ud.fotoPerfil}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`:(ud.nombre||'S')[0].toUpperCase();
+  openModal('modalPerfil');
+};
+window.onFotoChange=(inp)=>{if(!inp.files[0])return;newFoto=inp.files[0];document.getElementById('fotoAvModal').innerHTML=`<img src="${URL.createObjectURL(newFoto)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;};
+window.savePerfil=async()=>{
+  const n=document.getElementById('pfN').value.trim(),a=document.getElementById('pfA').value.trim(),e=document.getElementById('pfEstado').value.trim();
+  const upd={nombre:n,apellido:a,nombreCompleto:`${n} ${a}`,estadoAnimo:e,actualizadoEn:serverTimestamp()};
+  if(newFoto){const r=sRef(storage,`perfiles/${cu.uid}`);await uploadBytes(r,newFoto);upd.fotoPerfil=await getDownloadURL(r);newFoto=null;}
+  await updateDoc(doc(db,'usuarios',cu.uid),upd);Object.assign(ud,upd);closeModal('modalPerfil');toast('Perfil actualizado ✨','t-ok');setAv();
+};
+window.onPostImgChange=(inp)=>{if(!inp.files[0])return;document.getElementById('postImgPreview').src=URL.createObjectURL(inp.files[0]);document.getElementById('postImgPrev').classList.add('vis');document.getElementById('postImgName').textContent=inp.files[0].name;};
+window.clearPostImg=()=>{document.getElementById('postImg').value='';document.getElementById('postImgPrev').classList.remove('vis');document.getElementById('postImgName').textContent='';};
+window.togglePost=()=>{document.getElementById('btnPost').disabled=!document.getElementById('postBody').value.trim();};
+window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
+window.openModal=(id)=>document.getElementById(id).classList.add('open');
+window.closeModal=(id)=>document.getElementById(id).classList.remove('open');
+function saludo(){const h=new Date().getHours();return h<12?'🌅 Buenos días, Somita':h<19?'☀️ Buenas tardes, Somita':'🌙 Buenas noches, Somita';}
+function ago(ts){if(!ts)return'';const d=ts.toDate?ts.toDate():new Date(ts);const s=Math.floor((Date.now()-d)/1000);if(s<60)return'ahora';if(s<3600)return`${Math.floor(s/60)}m`;if(s<86400)return`${Math.floor(s/3600)}h`;return`${Math.floor(s/86400)}d`;}
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
+function hideSplash(){const s=document.getElementById('splash');s.classList.add('hidden');setTimeout(()=>s.remove(),600);}
+</script>
+<script>
+function goSection(n,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(`sec-${n}`)?.classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');}
+function toast(msg,cls){const z=document.getElementById('tz');const el=document.createElement('div');el.className=`toast ${cls}`;el.textContent=msg;z.appendChild(el);setTimeout(()=>el.remove(),4500);}
+window.goSection=goSection;window.toast=toast;
+</script>
+</body>
+</html>

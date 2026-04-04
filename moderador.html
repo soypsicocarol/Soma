@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Soma — Panel Guía del Nido</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--g:#3ecf7a;--y:#ffd166;--c:#ff7f6b;--p:#b57bee;--b:#5bc4fa;--ink:#2d2d44;--muted:#7a7a96;--surf:#f4f2ff;--white:#fff;--border:#e8e5f5;--r:14px;--r-lg:20px;--sw:230px;--tr:.2s cubic-bezier(.4,0,.2,1);--fd:'Fraunces',serif;--fb:'Plus Jakarta Sans',sans-serif}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--fb);background:var(--surf);color:var(--ink);min-height:100dvh}
+    .app{display:grid;grid-template-columns:var(--sw) 1fr;grid-template-rows:60px 1fr;min-height:100dvh}
+    .topbar{grid-column:1/-1;background:var(--ink);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:60}
+    .topbar-l{display:flex;align-items:center;gap:.9rem}
+    .logo{font-family:var(--fd);font-size:1.5rem;font-weight:700;color:#fff}
+    .logo span{color:var(--g)}
+    .guia-badge{background:rgba(91,196,250,.15);border:1px solid rgba(91,196,250,.3);border-radius:100px;padding:3px 12px;font-size:11.5px;font-weight:700;color:var(--b);text-transform:uppercase;letter-spacing:.5px}
+    .nido-pill{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:3px 12px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,.7)}
+    .topbar-r{display:flex;align-items:center;gap:10px}
+    .t-name{font-size:13px;font-weight:600;color:rgba(255,255,255,.6)}
+    .btn-out{padding:7px 16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:100px;font-family:var(--fb);font-size:13px;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;transition:all var(--tr)}
+    .btn-out:hover{background:rgba(255,255,255,.15);color:#fff}
+    .sidebar{background:rgba(255,255,255,.96);border-right:1px solid var(--border);padding:1.4rem 1rem;display:flex;flex-direction:column;gap:.3rem;overflow-y:auto}
+    .nav-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.9px;text-transform:uppercase;padding:12px 8px 4px}
+    .nav-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r);font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;transition:all var(--tr);border:none;background:none;width:100%;text-align:left;font-family:var(--fb)}
+    .nav-item:hover{background:var(--surf);color:var(--ink)}
+    .nav-item.active{background:var(--ink);color:#fff}
+    .nav-ico{font-size:.95rem;width:20px;text-align:center}
+    .nav-badge{background:var(--c);color:#fff;font-size:10px;font-weight:700;border-radius:100px;padding:1px 7px;margin-left:auto}
+    .sb-foot{margin-top:auto;padding:12px;background:rgba(91,196,250,.06);border:1px solid rgba(91,196,250,.15);border-radius:var(--r);font-size:11.5px;color:#0565a0;text-align:center;line-height:1.5}
+    .sb-foot strong{display:block;font-size:13px;margin-bottom:2px;color:var(--ink)}
+    .main{padding:1.8rem 2rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.5rem}
+    .section{display:none;flex-direction:column;gap:1.4rem}
+    .section.active{display:flex}
+    .pg-hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:1rem;border-bottom:1.5px solid var(--border)}
+    .pg-hdr h1{font-family:var(--fd);font-size:1.55rem;font-weight:700;color:var(--ink)}
+    .pg-hdr p{font-size:13.5px;color:var(--muted);margin-top:4px}
+    /* hero del nido */
+    .nido-hero{background:var(--ink);border-radius:var(--r-lg);padding:1.6rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;position:relative;overflow:hidden}
+    .nido-hero::before{content:'';position:absolute;width:280px;height:280px;background:radial-gradient(circle,rgba(91,196,250,.14),transparent 68%);top:-80px;right:-30px}
+    .nh-info{position:relative;z-index:1}
+    .nh-lbl{font-size:11.5px;font-weight:700;color:var(--b);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+    .nh-name{font-family:var(--fd);font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:6px}
+    .nh-desc{font-size:13px;color:rgba(255,255,255,.45);max-width:360px;line-height:1.6}
+    .nh-stats{position:relative;z-index:1;display:flex;gap:10px;flex-shrink:0}
+    .nhs{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:.8rem 1rem;text-align:center;min-width:90px}
+    .nhs-v{font-size:1.3rem;font-weight:700;color:#fff;font-family:var(--fd)}
+    .nhs-l{font-size:10.5px;color:rgba(255,255,255,.35);margin-top:2px}
+    /* cards */
+    .card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+    .card-hdr{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.2rem;border-bottom:1px solid var(--border)}
+    .card-hdr h2{font-family:var(--fd);font-size:1rem;font-weight:700;color:var(--ink)}
+    .card-hdr .filters{display:flex;gap:6px}
+    .filter-btn{padding:4px 12px;border-radius:100px;border:1.5px solid var(--border);background:none;font-family:var(--fb);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all var(--tr)}
+    .filter-btn.active{background:var(--ink);color:#fff;border-color:transparent}
+    /* posts */
+    .post-card{padding:1rem 1.2rem;border-bottom:1px solid var(--border);transition:background var(--tr)}
+    .post-card:last-child{border-bottom:none}
+    .post-card:hover{background:rgba(0,0,0,.015)}
+    .p-hdr{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+    .p-av{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;overflow:hidden}
+    .p-meta{flex:1}.p-name{font-size:13.5px;font-weight:700;color:var(--ink)}.p-time{font-size:11.5px;color:var(--muted);margin-top:1px}
+    .p-esp{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:100px;background:rgba(255,209,102,.12);color:#8a6200;margin-bottom:8px}
+    .p-body{font-size:13.5px;color:var(--ink);line-height:1.65;margin-bottom:8px}
+    .p-img{max-width:100%;max-height:220px;border-radius:var(--r);border:1.5px solid var(--border);display:block;margin-bottom:8px;object-fit:cover}
+    .reacts{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:8px}
+    .rb{display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;border:1.5px solid var(--border);background:var(--surf);font-size:12px;font-weight:600;color:var(--muted)}
+    .p-acts{display:flex;gap:5px}
+    .ab{padding:5px 10px;border-radius:8px;border:none;font-family:var(--fb);font-size:12px;font-weight:700;cursor:pointer;transition:all var(--tr)}
+    .ab-d{background:rgba(255,127,107,.08);color:#c44a35}.ab-d:hover{background:rgba(255,127,107,.15)}
+    .ab-b{background:rgba(91,196,250,.1);color:#0565a0}.ab-b:hover{background:rgba(91,196,250,.2)}
+    /* somitas list */
+    .somita-row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--border);transition:background var(--tr)}
+    .somita-row:last-child{border-bottom:none}
+    .somita-row:hover{background:rgba(0,0,0,.015)}
+    .u-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+    .u-av img{width:100%;height:100%;object-fit:cover}
+    .u-info{flex:1}.u-n{font-size:13.5px;font-weight:700;color:var(--ink)}.u-e{font-size:12px;color:var(--muted);margin-top:1px}
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11.5px;font-weight:700}
+    .b-activ{background:rgba(62,207,122,.12);color:#1a9952}
+    /* señales */
+    .senal-card{background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1rem 1.2rem;animation:fadeUp .3s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    .senal-hdr{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+    .senal-autor{font-size:13.5px;font-weight:700;color:var(--ink)}
+    .senal-tipo{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:100px}
+    .st-preg{background:rgba(91,196,250,.12);color:#0565a0}.st-sug{background:rgba(62,207,122,.12);color:#1a9952}
+    .senal-time{font-size:11.5px;color:var(--muted);margin-left:auto}
+    .senal-body{font-size:13.5px;line-height:1.6;color:var(--ink);margin-bottom:10px}
+    .senal-resp{background:rgba(255,255,255,.9);border:1.5px solid var(--border);border-radius:var(--r);padding:.8rem}
+    .senal-resp label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px}
+    .senal-resp textarea{width:100%;border:none;background:none;font-family:var(--fb);font-size:13.5px;color:var(--ink);resize:none;outline:none;min-height:60px;line-height:1.55}
+    .senal-resp-sent{background:rgba(181,123,238,.06);border-left:3px solid var(--p);padding:8px 11px;border-radius:0 var(--r) var(--r) 0;font-size:13px;color:#5a3099;margin-top:8px}
+    .senal-resp-sent strong{font-size:11px;display:block;margin-bottom:2px;color:#7840b8;text-transform:uppercase;letter-spacing:.5px}
+    /* modal */
+    .modal-ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+    .modal-ov.open{display:flex}
+    .modal{background:#fff;border-radius:var(--r-lg);padding:1.8rem;max-width:400px;width:90%;box-shadow:0 20px 50px rgba(0,0,0,.18);animation:popIn .22s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;gap:1rem}
+    @keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+    .modal h3{font-family:var(--fd);font-size:1.15rem;font-weight:700;color:var(--ink)}
+    .modal .sub{font-size:13px;color:var(--muted)}
+    .modal-btns{display:flex;gap:9px}
+    .modal-btns button{flex:1;padding:10px;border-radius:var(--r);font-family:var(--fb);font-size:13.5px;font-weight:700;cursor:pointer;transition:all var(--tr);border:none}
+    .btn-cancel{background:var(--surf);border:1.5px solid var(--border)!important;color:var(--muted)}
+    .btn-del{background:#ff7f6b;color:#fff}.btn-del:hover{background:#f25c45}
+    /* toast / splash */
+    .tz{position:fixed;bottom:1.6rem;right:1.6rem;z-index:300;display:flex;flex-direction:column;gap:8px}
+    .toast{padding:12px 16px;border-radius:var(--r);font-size:13.5px;font-weight:500;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.13);animation:slideR .25s ease;max-width:280px}
+    .t-ok{background:var(--g);color:#0d5c30}.t-err{background:var(--c)}.t-inf{background:var(--p)}
+    @keyframes slideR{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+    .splash{position:fixed;inset:0;z-index:100;background:var(--surf);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;transition:opacity .5s ease}
+    .splash.hidden{opacity:0;pointer-events:none}
+    .splash-logo{font-family:var(--fd);font-size:3rem;font-weight:700;color:var(--ink);animation:breathe 2s infinite}
+    .splash-logo span{color:var(--g)}
+    @keyframes breathe{0%,100%{opacity:1}50%{opacity:.5}}
+    .splash p{font-size:14px;color:var(--muted)}
+    .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1rem;text-align:center;gap:.7rem;color:var(--muted)}
+    .es-ico{font-size:2.2rem;opacity:.4}
+    @media(max-width:740px){:root{--sw:0px}.sidebar{display:none}.main{padding:1rem}}
+  </style>
+</head>
+<body>
+<div class="splash" id="splash"><div class="splash-logo">So<span>ma</span></div><p>Cargando panel de Guía…</p></div>
+
+<!-- Modal confirmar eliminar -->
+<div class="modal-ov" id="modalDel">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:2rem">🗑️</div>
+    <h3 id="mDelTitle">¿Eliminar publicación?</h3>
+    <p class="sub">Esta acción no se puede deshacer.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modalDel')">Cancelar</button>
+      <button class="btn-del" id="btnConfirmDel">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="tz" id="tz"></div>
+
+<div class="app">
+  <header class="topbar">
+    <div class="topbar-l">
+      <span class="logo">So<span>ma</span></span>
+      <div class="guia-badge">Guía</div>
+      <div class="nido-pill" id="nidoPillTop">Mi Nido</div>
+    </div>
+    <div class="topbar-r">
+      <span class="t-name" id="guiaName">–</span>
+      <button class="btn-out" onclick="doLogout()">Salir</button>
+    </div>
+  </header>
+  <nav class="sidebar">
+    <p class="nav-lbl">Mi Panel</p>
+    <button class="nav-item active" onclick="goSection('nido',this)"><span class="nav-ico">🏡</span>Mi Nido</button>
+    <button class="nav-item" onclick="goSection('posts',this)"><span class="nav-ico">📝</span>Publicaciones<span class="nav-badge" id="bdgPosts" style="display:none">!</span></button>
+    <button class="nav-item" onclick="goSection('somitas',this)"><span class="nav-ico">👥</span>Somitas</button>
+    <button class="nav-item" onclick="goSection('senales',this)"><span class="nav-ico">📡</span>Señales<span class="nav-badge" id="bdgSen" style="display:none">!</span></button>
+    <div class="sb-foot"><strong id="sbGuiaName">Guía del Nido</strong>Supervisas el contenido de tu Nido</div>
+  </nav>
+  <main class="main">
+
+    <!-- MI NIDO -->
+    <div class="section active" id="sec-nido">
+      <div class="nido-hero">
+        <div class="nh-info">
+          <div class="nh-lbl">Tu Nido asignado</div>
+          <div class="nh-name" id="heroNidoNombre">–</div>
+          <div class="nh-desc" id="heroNidoDesc">–</div>
+        </div>
+        <div class="nh-stats">
+          <div class="nhs"><div class="nhs-v" id="stMiembros">–</div><div class="nhs-l">Somitas</div></div>
+          <div class="nhs"><div class="nhs-v" id="stPosts">–</div><div class="nhs-l">Posts</div></div>
+          <div class="nhs"><div class="nhs-v" id="stSenales">–</div><div class="nhs-l">Señales</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><h2>🌾 Espigas del Nido</h2></div>
+        <div id="espigasOverview"></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><h2>📡 Señales sin responder</h2><button class="ab ab-b" style="font-size:12.5px;padding:6px 14px;border-radius:var(--r);border:none;font-family:var(--fb);font-weight:700;cursor:pointer" onclick="goSection('senales')">Ver todas</button></div>
+        <div id="senalesOverview"></div>
+      </div>
+    </div>
+
+    <!-- PUBLICACIONES -->
+    <div class="section" id="sec-posts">
+      <div class="pg-hdr">
+        <div><h1>Publicaciones</h1><p>Todos los posts de tu Nido</p></div>
+        <div class="filters">
+          <button class="filter-btn active" onclick="setPostF(this,'todos')">Todos</button>
+          <button class="filter-btn" onclick="setPostF(this,'con-img')">Con foto</button>
+        </div>
+      </div>
+      <div class="card"><div id="postsList"></div></div>
+    </div>
+
+    <!-- SOMITAS -->
+    <div class="section" id="sec-somitas">
+      <div class="pg-hdr"><div><h1>Somitas del Nido</h1><p>Miembros asignados a tu Nido</p></div></div>
+      <div class="card"><div id="somitasList"></div></div>
+    </div>
+
+    <!-- SEÑALES -->
+    <div class="section" id="sec-senales">
+      <div class="pg-hdr">
+        <div><h1>Señales</h1><p>Mensajes privados de los Somitas de tu Nido hacia las Soma</p></div>
+        <div class="filters">
+          <button class="filter-btn active" onclick="setSF(this,'todas')">Todas</button>
+          <button class="filter-btn" onclick="setSF(this,'sin-resp')">Sin responder</button>
+        </div>
+      </div>
+      <div id="senalesList"></div>
+    </div>
+
+  </main>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import{getFirestore,doc,getDoc,getDocs,updateDoc,deleteDoc,collection,query,where,orderBy,serverTimestamp}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyAGGSeXSbNxb3MGOAnUcsHVboABnfbea5I",authDomain:"soma-266d4.firebaseapp.com",projectId:"soma-266d4",storageBucket:"soma-266d4.firebasestorage.app",messagingSenderId:"796190024231",appId:"1:796190024231:web:6b22f6c81e3f3fb0c4e402"};
+const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);
+let guiaUser=null,guiaData=null,myNidos=[],allPosts=[],allSomitas=[],allSenales=[],allEspigas=[];
+let postF='todos',senalF='todas';
+const avColors=['#ff7f6b','#b57bee','#3ecf7a','#5bc4fa','#ffd166'];
+
+onAuthStateChanged(auth,async u=>{
+  if(!u){location.href='index.html';return;}
+  const s=await getDoc(doc(db,'usuarios',u.uid));
+  if(!s.exists()||s.data().rol!=='guia'||s.data().estado!=='activo'){location.href='index.html';return;}
+  guiaUser=u;guiaData=s.data();
+  document.getElementById('guiaName').textContent=guiaData.nombre||'Guía';
+  document.getElementById('sbGuiaName').textContent=guiaData.nombreCompleto||'Guía';
+  hideSplash();await loadAll();
+});
+
+async function loadAll(){
+  const nids=guiaData.nidos||[];
+  if(nids.length===0){toast('No tienes Nidos asignados. Contacta al Admin.','t-inf');return;}
+  // cargar datos del nido principal
+  const nidoSnap=await getDoc(doc(db,'nidos',nids[0]));
+  const nidoData=nidoSnap.exists()?nidoSnap.data():{nombre:'–',descripcion:''};
+  document.getElementById('heroNidoNombre').textContent=nidoData.nombre;
+  document.getElementById('heroNidoDesc').textContent=nidoData.descripcion||'Tu Nido asignado';
+  document.getElementById('nidoPillTop').textContent=nidoData.nombre;
+  // cargar datos paralelos
+  const [pSnap,uSnap,sSnap,eSnap]=await Promise.all([
+    getDocs(query(collection(db,'posts'),where('nidoId','in',nids),orderBy('creadoEn','desc'))),
+    getDocs(query(collection(db,'usuarios'),where('nidos','array-contains',nids[0]))),
+    getDocs(query(collection(db,'senales'),orderBy('creadoEn','desc'))),
+    getDocs(collection(db,'espigas'))
+  ]);
+  allPosts=pSnap.docs.map(d=>({id:d.id,...d.data()}));
+  allSomitas=uSnap.docs.map(d=>({id:d.id,...d.data()})).filter(u=>u.rol==='somita');
+  // señales: solo las de somitas de mi nido
+  const somitaIds=new Set(allSomitas.map(u=>u.id));
+  allSenales=sSnap.docs.map(d=>({id:d.id,...d.data()})).filter(s=>somitaIds.has(s.uid));
+  allEspigas=eSnap.docs.map(d=>({id:d.id,...d.data()}));
+  // stats
+  document.getElementById('stMiembros').textContent=allSomitas.length;
+  document.getElementById('stPosts').textContent=allPosts.length;
+  document.getElementById('stSenales').textContent=allSenales.length;
+  const sinResp=allSenales.filter(s=>!s.respuesta);
+  document.getElementById('bdgSen').style.display=sinResp.length>0?'':'none';
+  document.getElementById('bdgSen').textContent=sinResp.length;
+  renderAll();
+}
+
+function renderAll(){renderNido();renderPosts();renderSomitas();renderSenales();}
+
+// ── MI NIDO ──
+function renderNido(){
+  // espigas overview
+  const eiColors=['#ffd16620','#3ecf7a20','#b57bee20','#ff7f6b20','#5bc4fa20'];
+  document.getElementById('espigasOverview').innerHTML=allEspigas.length===0
+    ?'<div class="empty-state"><div class="es-ico">🌾</div><p>Sin Espigas creadas aún.</p></div>'
+    :allEspigas.map((e,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid var(--border)">
+        <div style="width:36px;height:36px;border-radius:10px;background:${eiColors[i%eiColors.length]};display:flex;align-items:center;justify-content:center;font-size:1.1rem">${e.icono||'🌾'}</div>
+        <div><div style="font-size:13.5px;font-weight:700;color:var(--ink)">${e.nombre}</div><div style="font-size:12px;color:var(--muted)">${e.descripcion||''}</div></div>
+        <span style="margin-left:auto;font-size:12px;color:var(--muted);background:var(--surf);padding:3px 9px;border-radius:100px">${allPosts.filter(p=>p.espigaId===e.id).length} posts</span>
+      </div>`).join('');
+  // señales sin responder overview
+  const sinResp=allSenales.filter(s=>!s.respuesta);
+  document.getElementById('senalesOverview').innerHTML=sinResp.length===0
+    ?'<div class="empty-state"><div class="es-ico">📡</div><p>Sin señales pendientes.</p></div>'
+    :sinResp.slice(0,3).map(s=>renderSenalCardMini(s)).join('');
+}
+
+// ── POSTS ──
+function renderPosts(){
+  const list=postF==='todos'?allPosts:allPosts.filter(p=>p.imagenUrl);
+  document.getElementById('postsList').innerHTML=list.length===0
+    ?'<div class="empty-state"><div class="es-ico">📝</div><p>Sin publicaciones en este Nido.</p></div>'
+    :list.map(p=>{
+      const col=avColors[(p.aid||'').charCodeAt(0)%avColors.length];
+      const esp=allEspigas.find(e=>e.id===p.espigaId);
+      return`<div class="post-card">
+        ${esp?`<span class="p-esp">${esp.icono||'🌾'} ${esp.nombre}</span>`:''}
+        <div class="p-hdr">
+          <div class="p-av" style="background:${col}">${p.autorFoto?`<img src="${p.autorFoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`:((p.autorNombre||'S')[0].toUpperCase())}</div>
+          <div class="p-meta"><div class="p-name">${p.autorNombre||'Somita'}</div><div class="p-time">${ago(p.creadoEn)}</div></div>
+        </div>
+        ${p.cuerpo?`<div class="p-body">${escHtml(p.cuerpo)}</div>`:''}
+        ${p.imagenUrl?`<img class="p-img" src="${p.imagenUrl}" loading="lazy"/>`:''}
+        <div class="reacts">${['❤️','🌟','👏','🎉'].map(em=>`<span class="rb">${em} ${p.reacts?.[em]||0}</span>`).join('')}</div>
+        <div class="p-acts"><button class="ab ab-d" onclick="confirmDel('${p.id}')">🗑️ Eliminar post</button></div>
+      </div>`;
+    }).join('');
+}
+window.setPostF=(btn,v)=>{document.querySelectorAll('#sec-posts .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');postF=v;renderPosts();};
+window.confirmDel=(id)=>{openModal('modalDel');document.getElementById('btnConfirmDel').onclick=async()=>{await deleteDoc(doc(db,'posts',id));closeModal('modalDel');toast('Post eliminado','t-ok');await loadAll();};};
+
+// ── SOMITAS ──
+function renderSomitas(){
+  document.getElementById('somitasList').innerHTML=allSomitas.length===0
+    ?'<div class="empty-state"><div class="es-ico">👥</div><p>Sin Somitas en este Nido aún.</p></div>'
+    :allSomitas.map(u=>`<div class="somita-row">
+        <div class="u-av" style="background:${avColors[u.id.charCodeAt(0)%avColors.length]}">${u.fotoPerfil?`<img src="${u.fotoPerfil}"/>`:(ini(u)||'?')}</div>
+        <div class="u-info"><div class="u-n">${u.nombreCompleto||'–'}</div><div class="u-e">${u.email||''} · ${u.edad||'–'} años</div></div>
+        <span class="badge b-activ">Activo</span>
+      </div>`).join('');
+}
+
+// ── SEÑALES ──
+function renderSenales(){
+  const list=senalF==='sin-resp'?allSenales.filter(s=>!s.respuesta):allSenales;
+  document.getElementById('senalesList').innerHTML=list.length===0
+    ?'<div class="empty-state"><div class="es-ico">📡</div><p>Sin señales.</p></div>'
+    :list.map(s=>renderSenalCardFull(s)).join('');
+}
+function renderSenalCardMini(s){
+  return`<div style="padding:.9rem 1.2rem;border-bottom:1px solid var(--border)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+      <span style="font-size:13px;font-weight:700;color:var(--ink)">👤 ${s.autorNombre||'Somita'}</span>
+      <span class="senal-tipo ${s.tipo==='pregunta'?'st-preg':'st-sug'}">${s.tipo==='pregunta'?'❓ Pregunta':'💡 Sugerencia'}</span>
+    </div>
+    <div style="font-size:13px;color:var(--ink)">${escHtml(s.cuerpo)}</div>
+  </div>`;
+}
+function renderSenalCardFull(s){
+  return`<div class="senal-card">
+    <div class="senal-hdr">
+      <span class="senal-autor">👤 ${s.autorNombre||'Somita'}</span>
+      <span class="senal-tipo ${s.tipo==='pregunta'?'st-preg':'st-sug'}">${s.tipo==='pregunta'?'❓ Pregunta':'💡 Sugerencia'}</span>
+      <span class="senal-time">${ago(s.creadoEn)}</span>
+    </div>
+    <div class="senal-body">${escHtml(s.cuerpo)}</div>
+    ${s.respuesta
+      ?`<div class="senal-resp-sent"><strong>Tu respuesta</strong>${escHtml(s.respuesta)}</div>`
+      :`<div class="senal-resp">
+          <label>Responder a esta Señal</label>
+          <textarea placeholder="Escribe tu respuesta…" id="rt-${s.id}"></textarea>
+          <div style="margin-top:8px;display:flex;justify-content:flex-end">
+            <button class="ab ab-b" style="padding:6px 14px;border-radius:var(--r)" onclick="responderSenal('${s.id}')">Enviar respuesta 📡</button>
+          </div>
+        </div>`}
+  </div>`;
+}
+window.setSF=(btn,v)=>{document.querySelectorAll('#sec-senales .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');senalF=v;renderSenales();};
+window.responderSenal=async(id)=>{
+  const txt=document.getElementById(`rt-${id}`)?.value.trim();
+  if(!txt){toast('Escribe una respuesta','t-err');return;}
+  await updateDoc(doc(db,'senales',id),{respuesta:txt,respondidoEn:serverTimestamp(),leida:true});
+  toast('Respuesta enviada 📡','t-ok');await loadAll();
+};
+
+// ── utils ──
+window.doLogout=async()=>{await signOut(auth);location.href='index.html';};
+window.openModal=(id)=>document.getElementById(id).classList.add('open');
+window.closeModal=(id)=>document.getElementById(id).classList.remove('open');
+function ini(u){return((u.nombre||'')[0]||'')+((u.apellido||'')[0]||'')||'?';}
+function ago(ts){if(!ts)return'';const d=ts.toDate?ts.toDate():new Date(ts);const s=Math.floor((Date.now()-d)/1000);if(s<60)return'ahora';if(s<3600)return`${Math.floor(s/60)}m`;if(s<86400)return`${Math.floor(s/3600)}h`;return`${Math.floor(s/86400)}d`;}
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
+function hideSplash(){const s=document.getElementById('splash');s.classList.add('hidden');setTimeout(()=>s.remove(),600);}
+</script>
+<script>
+function goSection(n,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(`sec-${n}`)?.classList.add('active');document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');}
+function toast(msg,cls){const z=document.getElementById('tz');const el=document.createElement('div');el.className=`toast ${cls}`;el.textContent=msg;z.appendChild(el);setTimeout(()=>el.remove(),4500);}
+window.goSection=goSection;window.toast=toast;
+</script>
+</body>
+</html>

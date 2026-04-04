@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Soma — Entra a tu espacio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--g:#3ecf7a;--y:#ffd166;--c:#ff7f6b;--p:#b57bee;--b:#5bc4fa;--ink:#2d2d44;--muted:#7a7a96;--surf:#f4f2ff;--white:#fff;--border:#e8e5f5;--r:14px;--fd:'Fraunces',serif;--fb:'Plus Jakarta Sans',sans-serif;--tr:.22s cubic-bezier(.4,0,.2,1)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--fb);background:var(--surf);color:var(--ink);min-height:100dvh;overflow-x:hidden}
+    .blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    .blob{position:absolute;border-radius:50%;filter:blur(110px);opacity:.10;animation:drift 18s ease-in-out infinite alternate}
+    .b1{width:600px;height:600px;background:var(--g);top:-160px;left:-120px}
+    .b2{width:440px;height:440px;background:var(--p);top:40%;right:-90px;animation-delay:-7s}
+    .b3{width:380px;height:380px;background:var(--y);bottom:-120px;left:25%;animation-delay:-13s}
+    @keyframes drift{from{transform:translate(0,0)scale(1)}to{transform:translate(30px,22px)scale(1.07)}}
+    .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1fr 480px;min-height:100dvh}
+    .land{display:flex;flex-direction:column;justify-content:center;padding:4rem 4rem 4rem 5rem;gap:2rem}
+    .logo{font-family:var(--fd);font-size:2.6rem;font-weight:700;color:var(--ink)}
+    .logo span{color:var(--g)}
+    .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(62,207,122,.1);border:1px solid rgba(62,207,122,.25);border-radius:100px;padding:6px 14px;font-size:12.5px;font-weight:600;color:#1a9952;width:fit-content}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--g);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .land h1{font-family:var(--fd);font-size:clamp(2.4rem,4vw,3.4rem);font-weight:700;color:var(--ink);line-height:1.12}
+    .land h1 em{font-style:italic;font-weight:300;color:var(--g)}
+    .land>p{font-size:15px;color:var(--muted);line-height:1.7;max-width:380px}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:.5rem}
+    .chip{padding:5px 14px;border-radius:100px;font-size:12.5px;font-weight:600;border:1.5px solid transparent}
+    .ch-g{background:rgba(62,207,122,.1);border-color:rgba(62,207,122,.25);color:#1a9952}
+    .ch-y{background:rgba(255,209,102,.12);border-color:rgba(255,209,102,.35);color:#8a6200}
+    .ch-c{background:rgba(255,127,107,.1);border-color:rgba(255,127,107,.25);color:#c44a35}
+    .ch-p{background:rgba(181,123,238,.1);border-color:rgba(181,123,238,.25);color:#7840b8}
+    .ch-b{background:rgba(91,196,250,.1);border-color:rgba(91,196,250,.25);color:#0771a0}
+    .land-foot{font-size:12.5px;color:var(--muted);margin-top:auto;padding-top:1rem;border-top:1px solid var(--border)}
+    .land-foot strong{color:var(--ink)}
+    .auth-side{background:rgba(255,255,255,.92);backdrop-filter:blur(20px);border-left:1px solid rgba(0,0,0,.05);display:flex;flex-direction:column;justify-content:center;padding:3rem 3.2rem;overflow-y:auto}
+    .logo-m{font-family:var(--fd);font-size:1.9rem;font-weight:700;color:var(--ink);margin-bottom:2rem;display:none}
+    .logo-m span{color:var(--g)}
+    .tabs{display:flex;gap:4px;background:var(--surf);border-radius:var(--r);padding:4px;margin-bottom:1.8rem}
+    .tab{flex:1;padding:10px;border:none;border-radius:10px;font-family:var(--fb);font-size:14px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all var(--tr)}
+    .tab.active{background:var(--white);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .panel{display:none;flex-direction:column;gap:1.1rem}
+    .panel.active{display:flex}
+    .panel h2{font-family:var(--fd);font-size:1.75rem;font-weight:700;color:var(--ink)}
+    .sub{font-size:13.5px;color:var(--muted);line-height:1.55}
+    .ig{display:flex;flex-direction:column;gap:5px}
+    .ig label{font-size:12.5px;font-weight:600;color:var(--ink)}
+    .ig input,.ig select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r);font-family:var(--fb);font-size:14px;color:var(--ink);background:var(--surf);outline:none;transition:border-color var(--tr),box-shadow var(--tr);appearance:none}
+    .ig input:focus,.ig select:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(62,207,122,.13);background:#fff}
+    .ig input::placeholder{color:#c0bcd8}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .rol-label{font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:6px;display:block}
+    .rol-grid{display:flex;flex-direction:column;gap:8px}
+    .rol-card{border:1.5px solid var(--border);border-radius:var(--r);padding:12px 14px;cursor:pointer;transition:all var(--tr);background:var(--surf);display:flex;align-items:center;gap:12px}
+    .rol-card:hover{border-color:#c0bcd8}
+    .rol-card input{position:absolute;opacity:0;pointer-events:none}
+    .rol-card.sel{border-color:var(--g);background:rgba(62,207,122,.06);box-shadow:0 0 0 3px rgba(62,207,122,.1)}
+    .rol-icon{font-size:1.4rem;flex-shrink:0}
+    .rol-texts{flex:1}
+    .rol-name{font-size:13px;font-weight:700;color:var(--ink);display:block}
+    .rol-desc{font-size:11.5px;color:var(--muted);margin-top:1px;display:block}
+    .rol-check{width:17px;height:17px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all var(--tr)}
+    .rol-card.sel .rol-check{border-color:var(--g);background:var(--g)}
+    .rol-card.sel .rol-check::after{content:'✓';font-size:9px;color:#fff;font-weight:800}
+    .soma-divider{display:none;align-items:center;gap:10px;margin:2px 0}
+    .soma-divider.vis{display:flex}
+    .soma-divider::before,.soma-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+    .soma-divider span{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.7px;text-transform:uppercase;white-space:nowrap}
+    .notice{display:flex;gap:9px;align-items:flex-start;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.4);border-radius:var(--r);padding:11px 13px;font-size:13px;color:#7a5800;line-height:1.5}
+    .notice .ni{flex-shrink:0}
+    .notice-soma{background:rgba(91,196,250,.08);border-color:rgba(91,196,250,.28);color:#065fa0}
+    .btn{width:100%;padding:13px;border:none;border-radius:var(--r);font-family:var(--fb);font-size:14.5px;font-weight:700;cursor:pointer;background:var(--ink);color:#fff;transition:all var(--tr);margin-top:4px}
+    .btn:hover{background:#222240;box-shadow:0 6px 20px rgba(0,0,0,.18);transform:translateY(-1px)}
+    .btn.sec{background:var(--surf);color:var(--ink);border:1.5px solid var(--border);box-shadow:none}
+    .btn.sec:hover{background:#eceaf7;box-shadow:none;transform:none}
+    .btn.loading{pointer-events:none;opacity:.6}
+    .divider{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px;margin:2px 0}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+    .pending{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1rem;padding:2rem 1rem}
+    .pending h2{font-family:var(--fd);font-size:1.65rem;color:var(--ink)}
+    .pending p{font-size:14px;color:var(--muted);max-width:280px;line-height:1.65}
+    .btn-out{padding:10px 26px;border:2px solid var(--ink);border-radius:100px;background:none;font-family:var(--fb);font-weight:700;font-size:13.5px;cursor:pointer;transition:all var(--tr)}
+    .btn-out:hover{background:var(--ink);color:#fff}
+    .tz{position:fixed;bottom:2rem;right:2rem;z-index:999;display:flex;flex-direction:column;gap:9px}
+    .toast{padding:13px 18px;border-radius:var(--r);font-size:13.5px;font-weight:500;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.14);animation:slideIn .28s ease;max-width:300px}
+    .t-ok{background:var(--g);color:#0d5c30}.t-err{background:var(--c)}.t-inf{background:var(--p)}
+    @keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+    .splash{position:fixed;inset:0;z-index:200;background:var(--surf);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;transition:opacity .5s ease}
+    .splash.hidden{opacity:0;pointer-events:none}
+    .splash-logo{font-family:var(--fd);font-size:3.2rem;font-weight:700;color:var(--ink);animation:breathe 2s infinite}
+    .splash-logo span{color:var(--g)}
+    @keyframes breathe{0%,100%{opacity:1}50%{opacity:.45}}
+    .splash p{font-size:14px;color:var(--muted)}
+    @media(max-width:960px){.wrap{grid-template-columns:1fr}.land{display:none}.auth-side{border-left:none;padding:2.5rem 1.8rem}.logo-m{display:block}}
+  </style>
+</head>
+<body>
+<div class="splash" id="splash"><div class="splash-logo">So<span>ma</span></div><p>Cargando tu espacio seguro…</p></div>
+<div class="blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div class="tz" id="tz"></div>
+<div class="wrap" id="wrap">
+  <section class="land">
+    <div class="logo">So<span>ma</span></div>
+    <div class="badge"><span class="dot"></span>Espacio seguro y supervisado</div>
+    <h1>Un lugar para<br>crecer y <em>conectar</em></h1>
+    <p>Aquí cada Somita tiene su espacio, su ritmo y su Nido. Un lugar donde expresarte, compartir logros y crecer junto a otros.</p>
+    <div>
+      <p style="font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.6px;text-transform:uppercase">Nidos activos</p>
+      <div class="chips">
+        <span class="chip ch-g">Raíces 8–10</span>
+        <span class="chip ch-y">Luz 10–12</span>
+        <span class="chip ch-c">Chispa TEA</span>
+        <span class="chip ch-p">Calma TDAH</span>
+        <span class="chip ch-b">Marea 14–16</span>
+      </div>
+    </div>
+    <div class="land-foot"><strong>Soma</strong> — Todos los espacios son supervisados por las Soma.</div>
+  </section>
+  <section class="auth-side" id="authSide">
+    <div class="logo-m">So<span>ma</span></div>
+    <div class="tabs" id="tabsBar">
+      <button class="tab active" onclick="switchTab('login')">Entrar</button>
+      <button class="tab" onclick="switchTab('register')">Registrarse</button>
+    </div>
+    <!-- LOGIN -->
+    <div class="panel active" id="panel-login">
+      <div><h2>Hola de nuevo</h2><p class="sub">Ingresa con tu correo y contraseña.</p></div>
+      <div class="ig"><label>Correo electrónico</label><input type="email" id="le" placeholder="tu@correo.com"/></div>
+      <div class="ig"><label>Contraseña</label><input type="password" id="lp" placeholder="••••••••"/></div>
+      <button class="btn" id="btnL" onclick="doLogin()">Entrar a Soma</button>
+      <div class="divider">¿Primera vez aquí?</div>
+      <button class="btn sec" onclick="switchTab('register')">Crear mi cuenta</button>
+    </div>
+    <!-- REGISTRO -->
+    <div class="panel" id="panel-register">
+      <div><h2>Únete a Soma</h2><p class="sub">Crea tu cuenta de Somita.</p></div>
+      <div class="ig">
+        <label>¿Tienes código Soma? <span style="font-weight:400;color:var(--muted)">(solo equipo Soma)</span></label>
+        <input type="password" id="somaCode" placeholder="Código de acceso Soma" oninput="checkSomaCode(this.value)"/>
+      </div>
+      <div>
+        <span class="rol-label">¿Quién eres?</span>
+        <div class="rol-grid" id="rolGrid">
+          <label class="rol-card sel" id="card-somita" onclick="selRol('somita')">
+            <input type="radio" name="rol" value="somita" checked/>
+            <span class="rol-icon">🌱</span>
+            <div class="rol-texts"><span class="rol-name">Somita</span><span class="rol-desc">Miembro del espacio Soma</span></div>
+            <span class="rol-check"></span>
+          </label>
+          <div class="soma-divider" id="somaDivider"><span>Acceso Soma</span></div>
+          <label class="rol-card" id="card-admin" onclick="selRol('admin')" style="display:none">
+            <input type="radio" name="rol" value="admin"/>
+            <span class="rol-icon">🧠</span>
+            <div class="rol-texts"><span class="rol-name">Soma Admin</span><span class="rol-desc">Centro de control universal</span></div>
+            <span class="rol-check"></span>
+          </label>
+          <label class="rol-card" id="card-guia" onclick="selRol('guia')" style="display:none">
+            <input type="radio" name="rol" value="guia"/>
+            <span class="rol-icon">🛡️</span>
+            <div class="rol-texts"><span class="rol-name">Guía del Nido</span><span class="rol-desc">Supervisa su nido asignado</span></div>
+            <span class="rol-check"></span>
+          </label>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="ig"><label>Nombre</label><input type="text" id="rn" placeholder="Tu nombre"/></div>
+        <div class="ig"><label>Apellido</label><input type="text" id="ra" placeholder="Tu apellido"/></div>
+      </div>
+      <div class="ig"><label>Fecha de nacimiento</label><input type="date" id="rf"/></div>
+      <div class="ig"><label>Correo electrónico</label><input type="email" id="re" placeholder="tu@correo.com"/></div>
+      <div class="ig"><label>Contraseña</label><input type="password" id="rp" placeholder="Mínimo 8 caracteres"/></div>
+      <div class="notice" id="noticeSomita"><span class="ni">⏳</span><span>Tu solicitud quedará en revisión hasta que una Soma apruebe tu acceso.</span></div>
+      <div class="notice notice-soma" id="noticeSoma" style="display:none"><span class="ni">🔒</span><span>Todos los roles Soma quedan pendientes hasta aprobación manual por un Admin.</span></div>
+      <button class="btn" onclick="doRegister()">Crear mi cuenta</button>
+    </div>
+    <!-- PENDIENTE -->
+    <div class="pending" id="pendingScreen">
+      <div style="font-size:3rem">🌱</div>
+      <h2>¡Ya casi estás dentro!</h2>
+      <p>Tu cuenta fue creada. Una Soma revisará tu solicitud y te abrirá las puertas del Nido.</p>
+      <button class="btn-out" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </section>
+</div>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import{getFirestore,doc,setDoc,getDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyAGGSeXSbNxb3MGOAnUcsHVboABnfbea5I",authDomain:"soma-266d4.firebaseapp.com",projectId:"soma-266d4",storageBucket:"soma-266d4.firebasestorage.app",messagingSenderId:"796190024231",appId:"1:796190024231:web:6b22f6c81e3f3fb0c4e402"};
+const SC="SOMA_STAFF_2024";
+const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app);
+onAuthStateChanged(auth,async u=>{
+  hideSplash();
+  if(!u){showAuth();return;}
+  const s=await getDoc(doc(db,"usuarios",u.uid));
+  if(!s.exists()){showAuth();return;}
+  const d=s.data();
+  if(d.rol==='admin'&&d.estado==='activo'){location.href='admin.html';return;}
+  if(d.rol==='guia'&&d.estado==='activo'){location.href='moderador.html';return;}
+  if(d.estado==='pendiente'){showPending();return;}
+  if(d.estado==='activo'){location.href='dashboard.html';return;}
+  if(d.estado==='bloqueado'){toast('Tu cuenta fue suspendida.','t-err');await signOut(auth);}
+  if(d.estado==='rechazado'){toast('Tu solicitud no fue aprobada.','t-err');await signOut(auth);}
+});
+window.doLogin=async()=>{
+  const e=document.getElementById('le').value.trim(),p=document.getElementById('lp').value;
+  if(!e||!p){toast('Completa todos los campos','t-err');return;}
+  const btn=document.getElementById('btnL');btn.textContent='Entrando…';btn.classList.add('loading');
+  try{await signInWithEmailAndPassword(auth,e,p);}
+  catch(err){toast(fe(err.code),'t-err');btn.textContent='Entrar a Soma';btn.classList.remove('loading');}
+};
+window.doRegister=async()=>{
+  const n=document.getElementById('rn').value.trim(),a=document.getElementById('ra').value.trim(),
+        f=document.getElementById('rf').value,em=document.getElementById('re').value.trim(),
+        pw=document.getElementById('rp').value,cd=document.getElementById('somaCode').value,
+        rol=document.querySelector('input[name="rol"]:checked')?.value||'somita';
+  if(!n||!a||!f||!em||!pw){toast('Completa todos los campos','t-err');return;}
+  if(pw.length<8){toast('Mínimo 8 caracteres','t-err');return;}
+  if((rol==='admin'||rol==='guia')&&cd!==SC){toast('Código Soma incorrecto','t-err');return;}
+  try{
+    const cr=await createUserWithEmailAndPassword(auth,em,pw);
+    const edad=calcEdad(f);
+    await setDoc(doc(db,"usuarios",cr.user.uid),{uid:cr.user.uid,nombre:n,apellido:a,nombreCompleto:`${n} ${a}`,email:em,fechaNacimiento:f,edad,rol,estado:'pendiente',nidos:[],fotoPerfil:'',creadoEn:serverTimestamp(),actualizadoEn:serverTimestamp()});
+    toast('¡Cuenta creada! En espera de aprobación.','t-ok');
+  }catch(err){toast(fe(err.code),'t-err');}
+};
+window.doLogout=async()=>{await signOut(auth);};
+function calcEdad(f){const h=new Date(),n=new Date(f);let e=h.getFullYear()-n.getFullYear();if(h.getMonth()-n.getMonth()<0||(h.getMonth()-n.getMonth()===0&&h.getDate()<n.getDate()))e--;return e;}
+function fe(c){const m={'auth/user-not-found':'No encontramos esa cuenta.','auth/wrong-password':'Contraseña incorrecta.','auth/email-already-in-use':'Ya existe una cuenta con ese correo.','auth/weak-password':'Contraseña muy débil.','auth/invalid-email':'Correo no válido.','auth/invalid-credential':'Correo o contraseña incorrectos.','auth/too-many-requests':'Demasiados intentos.'};return m[c]||'Ocurrió un error.';}
+</script>
+<script>
+const SC_UI="SOMA_STAFF_2024";
+function hideSplash(){const s=document.getElementById('splash');s.classList.add('hidden');setTimeout(()=>s.remove(),600);}
+function showAuth(){document.getElementById('pendingScreen').style.display='none';document.getElementById('tabsBar').style.display='';document.querySelectorAll('.panel').forEach(p=>{p.style.display='';p.classList.remove('active')});switchTab('login');}
+function showPending(){document.getElementById('tabsBar').style.display='none';document.querySelectorAll('.panel').forEach(p=>{p.style.display='none';p.classList.remove('active')});document.getElementById('pendingScreen').style.display='flex';}
+function switchTab(t){document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',(t==='login'&&i===0)||(t==='register'&&i===1)));document.querySelectorAll('.panel').forEach(p=>{p.style.display='none';p.classList.remove('active')});const pan=document.getElementById(`panel-${t}`);pan.style.display='flex';pan.classList.add('active');}
+function selRol(r){document.querySelectorAll('.rol-card').forEach(c=>c.classList.remove('sel'));const card=document.getElementById(`card-${r}`);if(card){card.classList.add('sel');const rd=card.querySelector('input');if(rd)rd.checked=true;}const isSoma=r==='admin'||r==='guia';document.getElementById('noticeSomita').style.display=isSoma?'none':'flex';document.getElementById('noticeSoma').style.display=isSoma?'flex':'none';}
+function checkSomaCode(v){const ok=v===SC_UI;document.getElementById('card-admin').style.display=ok?'':'none';document.getElementById('card-guia').style.display=ok?'':'none';document.getElementById('somaDivider').classList.toggle('vis',ok);if(!ok){const cur=document.querySelector('input[name="rol"]:checked')?.value;if(cur==='admin'||cur==='guia')selRol('somita');}}
+function toast(msg,cls){const z=document.getElementById('tz');const el=document.createElement('div');el.className=`toast ${cls}`;el.textContent=msg;z.appendChild(el);setTimeout(()=>el.remove(),4500);}
+window.switchTab=switchTab;window.selRol=selRol;window.checkSomaCode=checkSomaCode;window.toast=toast;
+</script>
+</body>
+</html>
